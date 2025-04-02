@@ -1,7 +1,8 @@
 String playerString = "mole-";
 String yellowBulletImg = "bullet_yellow.jpg";
 String antString = "ant-";
-String bgString = "dirt-bg.png";
+//String bgString = "dirt-bg.png";
+String bgString = "dirt-background-revised.png";
 ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 
 Character player;
@@ -11,7 +12,7 @@ PImage bg = new PImage();
 
 void setup(){
   imageMode(CENTER);
-  fullScreen();
+  size(1920, 1080);
   background(90);
   bg = loadImage(bgString);
   initialize();
@@ -19,7 +20,9 @@ void setup(){
 
 
 void draw(){
-  drawBackground();
+  //drawBackground();
+  background(bg);
+  
   player.update();
   player.display();
   
