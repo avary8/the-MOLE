@@ -1,5 +1,7 @@
 class Projectile extends PVector {
   
+  // viewingDir is just a bit broken atm
+  
   // coming from 0, 0 right now
   // need to persist a bit since the player could move and see them again.
   // if doing light thing, maybe could add a "visible" bool and updates all but only prints one that are visible

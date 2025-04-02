@@ -42,7 +42,7 @@ void draw(){
   enemy1.display();
   popMatrix();
   
-  text(dist(player.loc.x, player.loc.y, player.lookX, player.lookY), 300, 300);
+  text(dist(player.loc.x, player.loc.y, player.look.x, player.look.y), 300, 300);
   
   for (Projectile p: projectiles){
     p.update();
@@ -68,7 +68,7 @@ void loadBackgrounds() {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
           PImage img = loadImage("map-" + i + j + ".png");
-            backgrounds[i][j] = new Map(img, i * 1920, j * 1080);
+            backgrounds[j][i] = new Map(img, j * 1920, i * 1080);
         }
     }
 }
@@ -93,7 +93,7 @@ void drawBackgrounds() {
 
 
 void mouseMoved(){
-  player.mouseMoved();
+  player.mouseMoved(camera.loc.x, camera.loc.y);
 }
 
 

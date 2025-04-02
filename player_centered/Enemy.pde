@@ -14,17 +14,12 @@ class Enemy extends AbstractEntity {
   //boolean lockDir = false;
   
   
-  void setViewingDir(float x, float y){
-    lookX = x;
-    lookY = y;
-  }
   
   
   void update(float x, float y){
     
-    
+    // this is for tracking within a radius and then outside radius, continue in a direction until within radius again.
     // changing to always tracking 
-    
     
     // boolean inRadius = (distance < radiusDist) ? true : false;
     // float distance = dist(loc.x, loc.y, x, y);
@@ -49,6 +44,10 @@ class Enemy extends AbstractEntity {
 
     loc.x += xDir * speed;
     loc.y += yDir * speed;
+    
+    
+    look.x = xDir;
+    look.y = yDir;
     
     /* --------------------DEBUG TEXT-------------------- */
     fill(255);

@@ -10,7 +10,9 @@ class Camera {
   }
   
   void applyTransform() {
-    translate(-loc.x, -loc.y);
+    float cameraX = constrain(loc.x, 0, 3 * width - width);
+    float cameraY = constrain(loc.y, 0, 3 * height - height);
+    translate(-cameraX, -cameraY);
   }
   
 }

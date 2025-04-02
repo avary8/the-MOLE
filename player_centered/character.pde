@@ -11,8 +11,8 @@ class Character extends AbstractEntity {
 
 
   void setViewingDir(float x, float y){
-    lookX = x;
-    lookY = y;
+    look.x = x;
+    look.x = y;
   }
   
   void update(){
@@ -28,10 +28,22 @@ class Character extends AbstractEntity {
     if (right){
       loc.x += speed;
     }
+    
+    loc.x = constrain(loc.x, ((img[0].getWidth() * 0.8) / 2), 3*1920 - ((img[0].getWidth() * 0.8) / 2));
+    loc.y = constrain(loc.y, ((img[0].getHeight() * 0.8) / 2), 3* 1080 - ((img[0].getHeight() * 0.8) / 2));
+    
   }
   
-  void mouseMoved(){
-    setViewingDir(mouseX, mouseY);
+  void mouseMoved(float camX, float camY){
+    println("x : " +  mouseX + " y: "  + mouseY  + "loc.x: "  + loc.x + " loc.y: " + loc.y + mouseY + " camX : " + camX + " camY " + camY);
+    
+    PVector dir = new PVector(mouseX  - camX - loc.x, mouseY - camY - loc.y);
+    if (dir.mag() > 0){
+      dir.normalize();
+    }
+      
+    dir.mult(5000);
+    setViewingDir(dir.x, dir.y);
   }
   
   void mousePressed(){
