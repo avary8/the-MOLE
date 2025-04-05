@@ -1,47 +1,53 @@
 class Game{
   PFont font;
+  SoundFile music;
   PImage[] screens;
+  Image titleAnimaton;
   int currScreen;
   int difficulty = 0;
   
-  ControlP5 cp5;
-  
+  // cp5 , buttons , and sliders
+  ControlP5 cp5; 
   Button startButton, settingsButton, quitButton, escapeButton, yesButton, noButton, normalButton, hardButton;
   Slider musicVolSlider, effectsVolSlider;
-  
   
   int musicVol = 100;
   int effectsVol = 100;
   
-  Game(String[] names, ControlP5 cp5){
+  Game(String[] names, ControlP5 cp5, SoundFile music){
+    // load images for screens
     screens = new PImage[names.length];
     for (int i = 0; i < names.length; i++){
       screens[i] = loadImage(names[i]);
     }
     this.cp5 = cp5;
+    this.music = music;
+    
     font = createFont("AGENCYB.TTF", 64);
-
     initButtons();
+    music.loop();
   }
   
-  
+    
   void display(){
     pushMatrix();
     imageMode(CORNER);
+    
+    // draw current screen art
     image(screens[currScreen], 0, 0);
-    
-    
+
+    // draw the correct buttons / sliders needed for current screen
     switch (currScreen){ //<>//
-      case 0:
-        drawMenu();
+      case 0: // menu
+        drawMenu(); 
         break;
-      case 1: 
+      case 1: // settings
         drawSettings();
         break;
-      case 2:
+      case 2: // quit menu
         drawQuitSettings();
         break;
-      case 3:
+      case 3: // difficulty menu
         drawDifficulty();
         break;
     }
@@ -49,6 +55,47 @@ class Game{
     popMatrix();
   }
   
+  
+  void setCurrScreen(int currScreen){
+    this.currScreen = currScreen;
+  }
+  
+  void setDifficulty(int diff){
+    this.difficulty = diff;
+  }
+  
+  
+  void startGame(){
+    println("starting game func");
+  }
+  
+  
+  // what to do when ESC button (or key) is pressed. logic depends on what screen you are on
+  void handleESC(){
+    switch (currScreen){
+      case 0: // menu screen , go to quit menu 
+        cp5.hide(); 
+        currScreen = 2;
+        break;
+      case 1: // settings (from menu) , go to menu screen
+        cp5.hide();
+        currScreen = 0;
+        break;
+      case 2: // quit menu , go to menu screen
+        cp5.hide();
+        currScreen = 0;
+        break;
+      case 3: // difficulty menu , go to menu screen
+        cp5.hide();
+        currScreen = 0;
+        break;
+    }
+  }
+  
+  
+  
+  
+  // ########################## DRAW BUTTONS / SLIDERS FOR CURR SCREEN ########################## //
   
   void drawMenu(){
     cp5.show();
@@ -68,10 +115,12 @@ class Game{
     toggleQuitMenuButtons(false);
     toggleDifficultyButtons(false);
     
+    // sets music volume and effects volume based on the sliders
     musicVol = int(musicVolSlider.getValue());
     effectsVol = int(effectsVolSlider.getValue());
+    
+    music.amp(musicVol / 100.0);
   }
-  
   
    void drawQuitSettings(){
     cp5.show();
@@ -82,57 +131,26 @@ class Game{
     toggleDifficultyButtons(false);
   }
   
+  
   void drawDifficulty(){
     cp5.show();
     
     toggleStartMenuButtons(false);
+    
+    // can't use toggleSettingsButtons() because we want to show ESC button .. so manually hide the sliders like this
     musicVolSlider.hide();
     effectsVolSlider.hide();
+    
     toggleQuitMenuButtons(false);
     toggleDifficultyButtons(true);
     
-
-    escapeButton.show();
-  }
-  
-
-  
-  
-  void setCurrScreen(int currScreen){
-    this.currScreen = currScreen;
-  }
-  
-  void setDifficulty(int diff){
-    this.difficulty = diff;
-  }
-  
-  void startGame(){
-    println("starting game func");
-    
+    escapeButton.show(); 
   }
   
   
-  void handleESC(){
-    switch (currScreen){
-      case 0: // title screen
-        cp5.hide();
-        currScreen = 2;
-        break;
-      case 1: // title -- settings
-        cp5.hide();
-        currScreen = 0;
-        break;
-      case 2: // quit menu
-        cp5.hide();
-        currScreen = 0;
-        break;
-      case 3: // difficulty menu
-        cp5.hide();
-        currScreen = 0;
-        break;
-    }
-  }
+  // ########################## SHOW/HIDE FUNCTIONS FOR BUTTONS / SLIDERS ########################## //
   
+  // grouped buttons/sliders by which screen they appear on, then show / hide depending on boolean passed
   
   void toggleStartMenuButtons(boolean toggle){
     if (toggle){
@@ -187,7 +205,7 @@ class Game{
   
   void initButtons(){
     ControlFont cfont = new ControlFont(font);
-
+    
     int sliderHeight = 75;
     int sliderWidth = 600;
     
@@ -201,7 +219,6 @@ class Game{
     .setLabel("")
     .setPosition(812, 27)
     .setSize(306, 194)
-    .setFont(cfont)
     
     .setColorBackground(color(0, 0, 0, 1))  
     .setColorForeground(color(0, 0, 0, 20)) 
@@ -212,7 +229,6 @@ class Game{
     .setLabel("")
     .setPosition(812, 240)
     .setSize(568, 194)
-    .setFont(cfont)
     
     .setColorBackground(color(0, 0, 0, 1))  
     .setColorForeground(color(0, 0, 0, 20)) 
@@ -224,7 +240,6 @@ class Game{
     .setLabel("")
     .setPosition(812, 430)
     .setSize(288, 194)
-    .setFont(cfont)
     
     .setColorBackground(color(0, 0, 0, 1))  
     .setColorForeground(color(0, 0, 0, 20)) 
@@ -250,14 +265,6 @@ class Game{
     escapeButton.getCaptionLabel().setSize(escapeButton.getHeight()/2);
     
     
-        // top / bottom
-    line(0, 22 , width, 22);
-    line(0, 97, width, 97);
-    // left right
-    line(35, 0, 35, height);
-    line(156, 0, 156, height);
-    
-    
     musicVolSlider = cp5.addSlider("music volume")
     .setCaptionLabel("")
     .setPosition(xPos, yPos - 135)
@@ -281,8 +288,8 @@ class Game{
     .setNumberOfTickMarks(101)
     .showTickMarks(false)
     .setDecimalPrecision(0)
-    .setFont(cfont)
     .setSize(sliderWidth, sliderHeight)
+    .setFont(cfont)
     .setColorForeground(color(53, 140, 36))
     .setColorActive(color(53, 177, 36))
     ;
@@ -294,7 +301,6 @@ class Game{
     .setLabel("")
     .setPosition(680, 490)
     .setSize(145, 100)
-    .setFont(cfont)
     
     .setColorBackground(color(0, 0, 0, 1))  
     .setColorForeground(color(255, 255, 255, 20)) 
@@ -306,7 +312,6 @@ class Game{
     .setLabel("")
     .setPosition(1130, 490)
     .setSize(100, 100)
-    .setFont(cfont)
     
     .setColorBackground(color(0, 0, 0, 1))  
     .setColorForeground(color(255, 255, 255, 20)) 
@@ -319,7 +324,6 @@ class Game{
     .setLabel("")
     .setPosition(362, 284)
     .setSize(248, 102)
-    .setFont(cfont)
     
     .setColorBackground(color(0, 0, 0, 1))  
     .setColorForeground(color(255, 255, 255, 20)) 
@@ -331,23 +335,10 @@ class Game{
     .setLabel("")
     .setPosition(1357, 284)
     .setSize(167, 102)
-    .setFont(cfont)
     
     .setColorBackground(color(0, 0, 0, 1))  
     .setColorForeground(color(255, 255, 255, 20)) 
     .setColorActive(color(255, 255, 255, 20)); 
-    
-    
-    stroke(255, 255, 0);
-    // top / bottom
-    line(0, 294 , width, 294);
-    line(0, 366, width, 366);
-    // normal
-    line(372, 0, 372, height);
-    line(600, 0, 600, height);
-    // hard
-    line(1367, 0, 1367, height);
-    line(1514, 0, 1514, height);
     
     
     cp5.hide();
@@ -359,10 +350,10 @@ class Game{
   // used for debugging
   
   void drawGrid(){
-    pushMatrix();
-    stroke(255, 0, 0);
-    line(width/2, 0, width/2, height);
-    line(0, height/2, width, height/2);
+    //pushMatrix();
+    //stroke(255, 0, 0);
+    //line(width/2, 0, width/2, height);
+    //line(0, height/2, width, height/2);
     
     
     // play
@@ -423,7 +414,7 @@ class Game{
     //line(1514, 0, 1514, height);
     
     
-    popMatrix();
+    //popMatrix();
   }
 
  
