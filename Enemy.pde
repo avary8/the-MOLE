@@ -1,10 +1,10 @@
 class Enemy extends AbstractEntity {
-  Enemy(Image[] img, float x, float y, float speed, float attackRate){
-    super(img, speed, attackRate);
+  Enemy(Image[] img, float speed, float health, float attackCooldown){
+    super(img, speed, health, attackCooldown, 1);
   }
   
-  Enemy(Image[] img, String bulletFile, float speed, float attackRate){
-    super(img, bulletFile, speed, attackRate);
+  Enemy(Image[] img, String bulletFile, float speed, float health, float attackCooldown){
+    super(img, bulletFile, speed, health, attackCooldown, 1);
   }
   
   float radiusDist = 30;
@@ -49,15 +49,19 @@ class Enemy extends AbstractEntity {
     look.x = xDir;
     look.y = yDir;
     
-    if (isAttacking){
-      attackCooldown -= 1;
-      if (attackCooldown <= 0){
-        currImg = 1;
-        attackCooldown = 60/attackRate;
-        isAttacking = false;
-      }
+    if (isAttacking && millis() - lastAttackTime > 100){
+      isAttacking = false;
+      img[currImg].resetFrame();
     }
     
+    if (canAttack()){
+      isAttacking = true;
+      lastAttackTime = millis();
+      currImg = 0;
+    } else {
+       currImg = 1; 
+    }
+
     
     /* --------------------DEBUG TEXT-------------------- */
     fill(255);

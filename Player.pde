@@ -1,10 +1,10 @@
 class Character extends AbstractEntity {
-  Character(Image[] img, float speed, float attackRate){
-    super(img, speed, attackRate);
+  Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage){
+    super(img, speed, health, attackCooldown, attackDamage);
   }
   
-  Character(Image[] img,  String bulletFile, float speed, float attackRate){
-    super(img, bulletFile, speed, attackRate);
+  Character(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage){
+    super(img, bulletFile, speed, health, attackCooldown, attackDamage);
   }
 
   void setViewingDir(float x, float y){
@@ -13,22 +13,19 @@ class Character extends AbstractEntity {
   }
   
   void update(){
-    if (isAttacking){
-      attackCooldown--;
-      if (attackCooldown <= 0) {
-        if (attackFrame > 6){
-          isAttacking = false;
-          attackCooldown = 60 / attackRate; 
-        } else {
-          if (attackFrame == 0){
-            currImg = (currImg % 4) + 4;
-          }
-          attackFrame += 1;
-        }
-        println("attackCooldown : " + attackCooldown + "attack Frame : " + attackFrame);
-      }
+    // ensures attack stops when supposed to 
+    if (isAttacking && millis () - lastAttackTime > 100){
+      isAttacking = false;
+      img[currImg].resetFrame();
+      currImg = (currImg % 4);
     }
     
+    // allows attacks to automatically succeed each other without having to click (press and release)
+    if (mousePressed){ 
+      mousePressed();
+    }
+    
+    // adjust location based on key inputs
     if (up) {
       loc.y -= speed;
     }
@@ -44,7 +41,6 @@ class Character extends AbstractEntity {
     
     loc.x = constrain(loc.x, ((img[0].getWidth() * 0.8) / 2), 3*1920 - ((img[0].getWidth() * 0.8) / 2));
     loc.y = constrain(loc.y, ((img[0].getHeight() * 0.8) / 2), 3* 1080 - ((img[0].getHeight() * 0.8) / 2));
-    
   }
   
   void mouseMoved(float camX, float camY){
@@ -60,46 +56,47 @@ class Character extends AbstractEntity {
   }
   
   void mousePressed(){
-    isAttacking = true;
-    attackCooldown--;
-    if (attackCooldown <= 0) {
+    if (canAttack()){
+      println("player can attack");
+      
+      isAttacking = true;
+      lastAttackTime = millis();
       currImg = (currImg % 4) + 4;
-      attackCooldown = 60 / attackRate; 
-      isAttacking = false;
     }
   }
   
-  void mouseReleased(){
-    currImg = (currImg % 4);
-    isAttacking = false;
-  }
+
   
   void keyPressed(char key){
     print(key + " ");
-      switch (key) {
-       case 'w': 
-         up = true;
-         currImg = 0;
-         println("up");
-         break;
-       case 'a': 
-         left = true;
-         currImg = 3;
-         println("left");
-         break;
-       case 's': 
-         down = true;
-         currImg = 2;
-         println("down");
-         break;
-       case 'd': 
-         right = true;
-         currImg = 1;
-         println("right");
-         break;
-       default:
-         currImg = 8;
-       }
+    switch (key) {
+     case 'w': 
+       up = true;
+       currImg = 0;
+       println("up");
+       break;
+     case 'a': 
+       left = true;
+       currImg = 3;
+       println("left");
+       break;
+     case 's': 
+       down = true;
+       currImg = 2;
+       println("down");
+       break;
+     case 'd': 
+       right = true;
+       currImg = 1;
+       println("right");
+       break;
+     default:
+       currImg = 8;
+     }
+     
+     if (isAttacking){
+      currImg = (currImg % 4) + 4;
+    }
   }
   
   void keyReleased(char key){
@@ -135,6 +132,7 @@ class Character extends AbstractEntity {
        currImg = (prevImg % 4) + 8;
      }
   }
+  
   
   
   

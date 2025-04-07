@@ -3,8 +3,10 @@ class Game{
   SoundFile music;
   PImage[] screens;
   Image titleAnimaton;
+  
   int currScreen;
-  int difficulty = 0;
+  
+  GamePlay gamePlay;
   
   // cp5 , buttons , and sliders
   ControlP5 cp5; 
@@ -26,6 +28,8 @@ class Game{
     font = createFont("AGENCYB.TTF", 64);
     initButtons();
     music.loop();
+    
+    
   }
   
     
@@ -33,11 +37,16 @@ class Game{
     pushMatrix();
     imageMode(CORNER);
     
-    // draw current screen art
-    image(screens[currScreen], 0, 0);
+    if (currScreen >= 0){
+      // draw current screen art
+      image(screens[currScreen], 0, 0);
+    }
 
     // draw the correct buttons / sliders needed for current screen
     switch (currScreen){ //<>//
+      case -1: // playing game
+        gamePlay.updateDraw();
+        break;
       case 0: // menu
         drawMenu(); 
         break;
@@ -60,13 +69,12 @@ class Game{
     this.currScreen = currScreen;
   }
   
-  void setDifficulty(int diff){
-    this.difficulty = diff;
-  }
   
   
-  void startGame(){
-    println("starting game func");
+  void startGame(int difficulty){
+    currScreen = -1;
+    drawGamePlay(); // toggles off all buttons
+    gamePlay = new GamePlay(difficulty);
   }
   
   
@@ -92,7 +100,25 @@ class Game{
     }
   }
   
+  void keyPressed(char key){
+    if (currScreen == -1){
+      gamePlay.keyPressed(key);
+    }
+  }
+
+  void keyReleased(char key){
+    if (currScreen == -1){
+      gamePlay.keyReleased(key);
+    }
+  }
+    
+  void mousePressed(){
+    if (currScreen == -1){
+      gamePlay.mousePressed();
+    }
+  }
   
+
   
   
   // ########################## DRAW BUTTONS / SLIDERS FOR CURR SCREEN ########################## //
@@ -147,6 +173,15 @@ class Game{
     escapeButton.show(); 
   }
   
+  void drawGamePlay(){
+    cp5.hide();
+    
+    toggleStartMenuButtons(false);
+    toggleSettingButtons(false);
+    toggleQuitMenuButtons(false);
+    toggleDifficultyButtons(false);
+    
+  }
   
   // ########################## SHOW/HIDE FUNCTIONS FOR BUTTONS / SLIDERS ########################## //
   
@@ -343,8 +378,6 @@ class Game{
     
     cp5.hide();
   }
-  
-  
   
   
   // used for debugging

@@ -7,26 +7,32 @@ abstract class AbstractEntity {
   float speed;
   boolean isAttacking = false;
   boolean up, down, left, right;
-  float attackRate, attackCooldown;
-  float attackFrame = 0;
+  float attackCooldown;
+  int lastAttackTime = 0;
+  float attackDamage;
   
-  AbstractEntity(Image[] img, float speed, float attackRate){
+  
+  float health;
+  
+  AbstractEntity(Image[] img, float speed, float health, float attackCooldown, float attackDamage){
     this.img = img;
     loc.x = width/2;
     loc.y = height/2;
     this.speed = speed;
-    this.attackRate = attackRate;
-    this.attackCooldown = 60 / attackRate;
+    this.health = health;
+    this.attackCooldown = attackCooldown;
+    this.attackDamage = attackDamage;
   }
   
-  AbstractEntity(Image[] img, String bulletFile, float speed, float attackRate){
+  AbstractEntity(Image[] img, String bulletFile, float speed, float health, float attackCooldown, float attackDamage){
     this.img = img;
     bullet = loadImage(bulletFile);
     loc.x = width/2;
     loc.y = height/2;
     this.speed = speed;
-    this.attackRate = attackRate;
-    this.attackCooldown = 60 / attackRate;
+    this.health = health;
+    this.attackCooldown = attackCooldown;
+    this.attackDamage = attackDamage;
   }
   
   
@@ -59,8 +65,21 @@ abstract class AbstractEntity {
     
     
     popMatrix();
-    
   }
+  
+  boolean canAttack(){
+    return millis() - lastAttackTime >= attackCooldown;
+  }
+  
+  void takeDamage(float dmg){
+    health -= dmg;
+  }
+  
+  //void updateMeleeHitBox(){
+  // meleeHitBox.setLocation(loc.x + width/2, loc.y);
+  // meleeHitBox.setSize(20, 20);
+    
+  //}
   
   
 }

@@ -5,7 +5,7 @@ class Image {
   PImage[] images;
   int imgCount;
   int frame;
-  int frameDelay = 5;
+  int frameDelay = 3;
   int frameCounter = 0;
   
   Image(String imagePrefix, int count){
@@ -35,13 +35,11 @@ class Image {
     if (frameCounter >= frameDelay){
       frame = (frame+1) % imgCount;
       frameCounter = 0;
-      
-      image(images[frame], xpos, ypos, images[frame].width, images[frame].height);
     }
+    image(images[frame], xpos, ypos, images[frame].width, images[frame].height);
   }
   
   boolean isFinished(){
-    println("frame: " + frame);
     return (frame >= images.length-1) && (frameCounter == frameDelay - 1); 
   }
   
@@ -56,4 +54,10 @@ class Image {
   void setFrameDelay(int frameDelay) {
     this.frameDelay = frameDelay;
   }
+  
+  void resetFrame(){
+    frame = 0;
+    frameCounter = 0;
+  }
+  
 }

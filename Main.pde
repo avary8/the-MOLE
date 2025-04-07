@@ -56,15 +56,22 @@ void setup(){
 }
 
 void draw(){
-  if (isOpening){
-    titleScreen.display(0, 0);
-    if (titleScreen.isFinished()){
-      isOpening = false;
-    }
-  } else {
-    game.display();
-    game.drawGrid();
-  }
+  // commented to skip intro animation for development purposes
+  
+  //if (isOpening){
+  //  titleScreen.display(0, 0);
+  //  if (titleScreen.isFinished()){
+  //    isOpening = false;
+  //  }
+  //} else {
+  //  game.display();
+  //  game.drawGrid();
+  //}
+  
+  
+  isOpening = false;
+  game.display();
+  game.drawGrid();
 }
 
 
@@ -74,8 +81,19 @@ void keyPressed(){
   if (key == ESC){
     key = 0; // so as not to exit processing
     game.handleESC();
-  } 
+  } else {
+    game.keyPressed(key);
+  }
 }
+
+void keyReleased(){
+  game.keyReleased(key);
+}
+
+void mousePressed(){
+  game.mousePressed();
+}
+
 
 // ########################## CP5 Controllers ########################## //
 
@@ -112,14 +130,12 @@ void noButton(){
 
 void normalButton(){
   println("normal BUTTON CLICKED");
-  game.setDifficulty(0);
-  game.startGame();
+  game.startGame(0);
 }
 
 void hardButton(){
   println("hard BUTTON CLICKED");
-  game.setDifficulty(1);
-  game.startGame(); 
+  game.startGame(1); 
 }
 
 
