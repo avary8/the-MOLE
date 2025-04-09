@@ -9,6 +9,8 @@ class GamePlay{
   ArrayList<Enemy> enemies = new ArrayList<Enemy>();
   ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
   
+  int maxEnemyCount = 20;
+  
   //UpgradeManager upgradeManager;
   boolean upgradeScreen = false;
   
@@ -39,9 +41,9 @@ class GamePlay{
     player.update();
     player.display();
     
-    for (Enemy e : enemies){
-      e.update(player.loc.x, player.loc.y);
-      e.display();
+    for (Enemy e : enemies){ //<>//
+      e.update(player.loc.x, player.loc.y); //<>//
+      e.display(); //<>//
     }
 
 
@@ -98,18 +100,23 @@ class GamePlay{
     for (int i = enemies.size() - 1; i >= 0; i--) {
       Enemy enemy = enemies.get(i);
       
-      if (player.isAttacking && player.attackIntersects(enemy)){
+      if (player.isAttacking && !player.hasHit && player.attackIntersects(enemy)){
        println("PLAYER HIT ENEMY"); 
        enemy.takeDamage(player.attackDamage);
+       player.hasHit = true;
       }
       
 
-      if (enemy.isAttacking && enemy.attackIntersects(player)) {
+      if (enemy.isAttacking && !enemy.hasHit  && enemy.attackIntersects(player)) {
         player.takeDamage(enemy.attackDamage);
+        enemy.hasHit = true;
       }
       
       if (enemy.health <= 0){
         enemies.remove(i);
+        kills += 1;
+        spawnEnemies(enemy.img);
+        println("PLAYER KILLS: " + kills);
       }
       
       if (player.health <= 0){
@@ -151,17 +158,17 @@ class GamePlay{
     
     // set difficulty based health
     if (difficulty == 0){
-      player = new Character(playerImgArr, 5, 5, 750, 0.3, 0.5, 25);
+      // Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach)
+      player = new Character(playerImgArr, 5, 5, 750, 0.3, 0.5, 50);
     } else {
-      player = new Character(playerImgArr, 5, 2, 750, 0.3, 0.5, 25);
+      player = new Character(playerImgArr, 5, 2, 750, 0.3, 0.5, 50);
       
     }
-    // Enemy(Image[] img, float speed, float health, float attackCooldown, float hitBoxAdj, float meleeReach)
-    enemy1 = new Enemy(enemyImgArr, 1, 1, 100, 0.7, 10);
-    enemies.add(enemy1);
+
+
+    spawnEnemies(enemyImgArr);
     
     camera = new Camera(width/2, height/2);
-    
   }
   
   
@@ -241,19 +248,34 @@ class GamePlay{
   }
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  void spawnEnemies(Image[] imgArr){
+    for (int i = enemies.size(); i < maxEnemyCount; i++){
+      int spawnBuffer = int(random(200));
+      int spawnSide = int(random(4));
+      float spawnX, spawnY;
+    
+      switch (spawnSide){
+        case 0: // top
+          spawnX = random(width * 3);
+          spawnY = -spawnBuffer;
+          break;
+       case 1:  // right
+         spawnX = (width * 3) + spawnBuffer;
+         spawnY = random(height * 3);
+         break;
+       case 2:  // bottom
+         spawnX = random(width * 3);
+         spawnY = (3 * height) + spawnBuffer;
+         break;
+       default:  // left
+         spawnX = (width * 3) - spawnBuffer;
+         spawnY = random(height * 3);
+         break;
+      }
+      // Enemy(Image[] img, float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach)
+      enemies.add(new Enemy(imgArr, spawnX, spawnY, 1, 1, 100, 0.7, 10)); //<>//
+    }
+    
+  }
   
 }

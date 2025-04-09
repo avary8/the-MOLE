@@ -6,6 +6,7 @@ abstract class AbstractEntity {
   PVector look = new PVector();
   
   boolean isAttacking = false;
+  boolean hasHit = false;
   boolean up, down, left, right;
   int lastAttackTime = 0;
   
@@ -15,10 +16,10 @@ abstract class AbstractEntity {
   
   float health;
   
-  AbstractEntity(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
+  AbstractEntity(Image[] img, float x, float y, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     this.img = img;
-    loc.x = width/2;
-    loc.y = height/2;
+    loc.x = x;
+    loc.y = y;
     this.speed = speed;
     this.health = health;
     this.attackCooldown = attackCooldown;
@@ -29,11 +30,11 @@ abstract class AbstractEntity {
     hitBoxHeight = img[0].getHeight() * hitBoxAdj;
   }
   
-  AbstractEntity(Image[] img, String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
+  AbstractEntity(Image[] img, float x, float y,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     this.img = img;
     bullet = loadImage(bulletFile);
-    loc.x = width/2;
-    loc.y = height/2;
+    loc.x = x;
+    loc.y = y;
     this.speed = speed;
     this.health = health;
     this.attackCooldown = attackCooldown;
@@ -61,66 +62,34 @@ abstract class AbstractEntity {
   }
   
   void takeDamage(float dmg){
+    println("DMG: " + dmg);
     health -= dmg;
   }
   
-  //void updateMeleeHitBox(){
-  // meleeHitBox.setLocation(loc.x + width/2, loc.y);
-  // meleeHitBox.setSize(20, 20);
-    
-  //}
   
   boolean attackIntersects(AbstractEntity entity){
-    float endReach;
-    float targetBoundaryX = 0;
-    float targetBoundaryY = 0;
-
-    /* 4 Directions (up, right, down, left). Picture index follows same order 
-        so  images[0] ---> UP [ACTION 0] 
-            images[1] ---> RIGHT [ACTION 0]  
-            images[2] ---> DOWN [ACTION 0] 
-            images[3] ---> LEFT [ACTION 0]
-            
-            images[4] ---> UP [ACTION 1] 
-            images[5] ---> RIGHT [ACTION 1]  
-            images[6] ---> DOWN [ACTION 1] 
-            images[7] ---> LEFT [ACTION 1]  
-            
-        etc
-    */
-    switch (currImg % 4){
-     case 0: // up
-       endReach = loc.y + attackReach;
-       targetBoundaryY = entity.loc.y - (hitBoxHeight/2);
-       if (endReach < targetBoundaryY){
-        return true; 
-       }
-       break;
-     case 1: // right
-       endReach = loc.x + attackReach;
-       targetBoundaryX = entity.loc.x - (hitBoxWidth/2);
-       if (endReach > targetBoundaryX){
-        return true; 
-       }
-       break;
-     case 2: // down
-       endReach = loc.y - attackReach;
-       targetBoundaryY = entity.loc.y - (hitBoxHeight/2);
-       if (endReach > targetBoundaryY){
-        return true; 
-       }
-       break;
-     case 3: // left
-       endReach = loc.x - attackReach;
-       targetBoundaryX = entity.loc.x + (hitBoxWidth/2);
-       if (endReach < targetBoundaryX){
-        return true; 
-       }
-       break;
-    }
-    return false;
-  }
+    float attackDirX = 0;
+    float attackDirY = 0;
     
+    switch (currImg % 4){
+      case 0: // Up
+        attackDirY = -1; break; 
+      case 1: // Right
+        attackDirX = 1; break;  
+      case 2: // Down
+        attackDirY = 1; break;  
+      case 3: // Left
+        attackDirX = -1; break; 
+    }
+    
+    float entityToX = entity.loc.x - loc.x;
+    float entityToY = entity.loc.y - loc.y;
+    
+    float direction = (attackDirX * entityToX) + (attackDirY * entityToY);
+
+    
+    return (direction > 0 && dist(loc.x, loc.y, entity.loc.x, entity.loc.y) < hitBoxWidth + attackReach );
+  }
     
   
   // used for debugging

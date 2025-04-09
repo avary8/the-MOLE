@@ -10,6 +10,9 @@
     
     - upgrades
     
+    - implement levels
+      - adjust number of enemies based on level
+    
     - in game pause (settings)
     
     

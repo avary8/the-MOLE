@@ -1,10 +1,10 @@
 class Character extends AbstractEntity {
   Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
-    super(img, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
+    super(img, width/2, height/2, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
   }
   
   Character(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
-    super(img, bulletFile, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
+    super(img, width/2, height/2, bulletFile, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
   }
 
   void setViewingDir(float x, float y){
@@ -16,6 +16,7 @@ class Character extends AbstractEntity {
     // ensures attack stops when supposed to 
     if (isAttacking && millis () - lastAttackTime > 100){
       isAttacking = false;
+      hasHit = false;
       img[currImg].resetFrame();
       currImg = (currImg % 4);
       if (!up && !down && !right && !left){
