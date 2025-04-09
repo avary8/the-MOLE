@@ -2,10 +2,25 @@
 // Ava McCormack
 
 
+/* TODO
+    - add sfx
+    - add overlay on GamePlay
+    
+    - add death / win screen 
+    
+    - upgrades
+    
+    - in game pause (settings)
+    
+    
+    
+    -- bosses
+    
+    - projectile if i get to it
+*/
 
 
-
-/* ---------------------------------------- NOTE ----------------------------------------
+/* ---------------------------------------- NOTES ----------------------------------------
   i implemented a lot of code as you can see, but I was testing it in a different folder to just figure out movement, clicking, loading images, etc. (i've never really made a game besides minesweeper in prog 2) 
     so it is not integrated with this Main yet . since this folder was originally just testing out the Menu selection stuff
     also i havent commented most of it yet since i was just testing stuff, but figured i'd include it in the submission

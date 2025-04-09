@@ -1,10 +1,10 @@
 class Character extends AbstractEntity {
-  Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float meleeReach){
-    super(img, speed, health, attackCooldown, attackDamage, hitBoxAdj, meleeReach);
+  Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
+    super(img, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
   }
   
-  Character(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float meleeReach){
-    super(img, bulletFile, speed, health, attackCooldown, attackDamage, hitBoxAdj, meleeReach);
+  Character(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
+    super(img, bulletFile, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
   }
 
   void setViewingDir(float x, float y){

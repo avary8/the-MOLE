@@ -11,11 +11,11 @@ abstract class AbstractEntity {
   
   float speed, attackCooldown, attackDamage, hitBoxWidth, hitBoxHeight;
   float hitBoxAdj = 1;
-  float meleeReach = 5;
+  float attackReach = 5;
   
   float health;
   
-  AbstractEntity(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float meleeReach){
+  AbstractEntity(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     this.img = img;
     loc.x = width/2;
     loc.y = height/2;
@@ -24,12 +24,12 @@ abstract class AbstractEntity {
     this.attackCooldown = attackCooldown;
     this.attackDamage = attackDamage;
     this.hitBoxAdj = hitBoxAdj;
-    this.meleeReach = meleeReach;
+    this.attackReach = attackReach;
     hitBoxWidth = img[0].getWidth() * hitBoxAdj;
     hitBoxHeight = img[0].getHeight() * hitBoxAdj;
   }
   
-  AbstractEntity(Image[] img, String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float meleeReach){
+  AbstractEntity(Image[] img, String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     this.img = img;
     bullet = loadImage(bulletFile);
     loc.x = width/2;
@@ -39,7 +39,7 @@ abstract class AbstractEntity {
     this.attackCooldown = attackCooldown;
     this.attackDamage = attackDamage;
     this.hitBoxAdj = hitBoxAdj;
-    this.meleeReach = meleeReach;
+    this.attackReach = attackReach;
     hitBoxWidth = img[0].getWidth() * hitBoxAdj;
     hitBoxHeight = img[0].getHeight() * hitBoxAdj;
   }
@@ -90,28 +90,28 @@ abstract class AbstractEntity {
     */
     switch (currImg % 4){
      case 0: // up
-       endReach = loc.y + meleeReach;
+       endReach = loc.y + attackReach;
        targetBoundaryY = entity.loc.y - (hitBoxHeight/2);
        if (endReach < targetBoundaryY){
         return true; 
        }
        break;
      case 1: // right
-       endReach = loc.x + meleeReach;
+       endReach = loc.x + attackReach;
        targetBoundaryX = entity.loc.x - (hitBoxWidth/2);
        if (endReach > targetBoundaryX){
         return true; 
        }
        break;
      case 2: // down
-       endReach = loc.y - meleeReach;
+       endReach = loc.y - attackReach;
        targetBoundaryY = entity.loc.y - (hitBoxHeight/2);
        if (endReach > targetBoundaryY){
         return true; 
        }
        break;
      case 3: // left
-       endReach = loc.x - meleeReach;
+       endReach = loc.x - attackReach;
        targetBoundaryX = entity.loc.x + (hitBoxWidth/2);
        if (endReach < targetBoundaryX){
         return true; 
@@ -139,7 +139,7 @@ abstract class AbstractEntity {
     float entityHeight = img[0].getHeight() * hitBoxAdj;
     
     // melee reach -- when entity attacks "something", it the attack is inside the "something's" hitbox, "something" takes damage
-    line(loc.x - (entityWidth/2) - meleeReach, loc.y, loc.x + (entityWidth/2) + meleeReach, loc.y);
+    line(loc.x - (entityWidth/2) - attackReach, loc.y, loc.x + (entityWidth/2) + attackReach, loc.y);
     
     fill(0, 0, 0, 0);
     
@@ -155,21 +155,21 @@ abstract class AbstractEntity {
     line(loc.x - entityWidth/2 , loc.y, loc.x + entityWidth/2 , loc.y);
 
     // just a diagonal guideline
-    line(loc.x - (entityWidth/2)  - meleeReach , loc.y - (entityHeight/2) - meleeReach, loc.x + (entityWidth/2) + meleeReach, loc.y + (entityHeight/2) + meleeReach);
+    line(loc.x - (entityWidth/2)  - attackReach , loc.y - (entityHeight/2) - attackReach, loc.x + (entityWidth/2) + attackReach, loc.y + (entityHeight/2) + attackReach);
     
     
 // BLUE
     stroke(0, 0, 255);
     
     // melee reach -- when entity attacks "something", it the attack is inside the "something's" hitbox, "something" takes damage
-    line(loc.x, loc.y - (entityHeight/2) - meleeReach, loc.x, loc.y + (entityHeight/2) + meleeReach);
+    line(loc.x, loc.y - (entityHeight/2) - attackReach, loc.x, loc.y + (entityHeight/2) + attackReach);
     
   
 // YELLOW
     stroke(255, 255, 0);
     
     // circle of melee reach
-    ellipse(loc.x, loc.y, entityWidth + ( 2 * meleeReach), entityHeight + ( 2 * meleeReach));
+    ellipse(loc.x, loc.y, entityWidth + ( 2 * attackReach), entityHeight + ( 2 * attackReach));
     
     popMatrix();
   }
