@@ -1,10 +1,10 @@
 class Enemy extends AbstractEntity {
-  Enemy(Image[] img, float speed, float health, float attackCooldown, float hitBoxAdj){
-    super(img, speed, health, attackCooldown, 1, hitBoxAdj);
+  Enemy(Image[] img, float speed, float health, float attackCooldown, float hitBoxAdj, float meleeReach){
+    super(img, speed, health, attackCooldown, 1, hitBoxAdj, meleeReach);
   }
   
-  Enemy(Image[] img, String bulletFile, float speed, float health, float attackCooldown, float hitBoxAdj){
-    super(img, bulletFile, speed, health, attackCooldown, 1, hitBoxAdj);
+  Enemy(Image[] img, String bulletFile, float speed, float health, float attackCooldown, float hitBoxAdj, float meleeReach){
+    super(img, bulletFile, speed, health, attackCooldown, 1, hitBoxAdj, meleeReach);
   }
   
   float radiusDist = 30;

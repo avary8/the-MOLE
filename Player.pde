@@ -1,10 +1,10 @@
 class Character extends AbstractEntity {
-  Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj){
-    super(img, speed, health, attackCooldown, attackDamage, hitBoxAdj);
+  Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float meleeReach){
+    super(img, speed, health, attackCooldown, attackDamage, hitBoxAdj, meleeReach);
   }
   
-  Character(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj){
-    super(img, bulletFile, speed, health, attackCooldown, attackDamage, hitBoxAdj);
+  Character(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float meleeReach){
+    super(img, bulletFile, speed, health, attackCooldown, attackDamage, hitBoxAdj, meleeReach);
   }
 
   void setViewingDir(float x, float y){
@@ -59,7 +59,7 @@ class Character extends AbstractEntity {
   }
   
   void mousePressed(){
-    if (canAttack()){
+    if (!isAttacking && canAttack()){
       println("player can attack");
       
       isAttacking = true;

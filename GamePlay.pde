@@ -12,6 +12,8 @@ class GamePlay{
   //UpgradeManager upgradeManager;
   boolean upgradeScreen = false;
   
+  boolean gameOver = false;
+  
   int difficulty = 0;
   int level = 0;
   int kills = 0;
@@ -37,8 +39,12 @@ class GamePlay{
     player.update();
     player.display();
     
-    enemy1.update(player.loc.x, player.loc.y);
-    enemy1.display();
+    for (Enemy e : enemies){
+      e.update(player.loc.x, player.loc.y);
+      e.display();
+    }
+
+
     popMatrix();
     
     text(dist(player.loc.x, player.loc.y, player.look.x, player.look.y), 300, 300);
@@ -88,19 +94,28 @@ class GamePlay{
   
   
   void checkCollisions(){
+    
     for (int i = enemies.size() - 1; i >= 0; i--) {
       Enemy enemy = enemies.get(i);
       
-      //if (player.isAttacking && player.hitbox.intersects(enemy.hitbox())) {
-      //  enemy.takeDamage(player.attackDamage);
-      //}
+      if (player.isAttacking && player.attackIntersects(enemy)){
+       println("PLAYER HIT ENEMY"); 
+       enemy.takeDamage(player.attackDamage);
+      }
       
-      //if (enemy.isAttacking && enemy.hitbox().intersects(player.hitbox())) {
-      //  player.takeDamage(enemy.attackDamage);
-      //}
+
+      if (enemy.isAttacking && enemy.attackIntersects(player)) {
+        player.takeDamage(enemy.attackDamage);
+      }
       
       if (enemy.health <= 0){
         enemies.remove(i);
+      }
+      
+      if (player.health <= 0){
+        println(" PLAYER HAS " + player.health + " LIVES ");
+        //gameOver = true;
+        //break;
       }
       
     }
@@ -128,15 +143,21 @@ class GamePlay{
     int[] enemyNums = { 2, 2, 2, 2, 1, 1, 1, 1 };
     Image[] enemyImgArr = loadEntityImages(antString, enemyNums, 3);
     
+    
+    println("player width: "+ playerImgArr[0].getWidth());
+    println("player height: "+ playerImgArr[0].getHeight());
+    println("enemy width: "+ enemyImgArr[0].getWidth());
+    println("enemy height: "+ enemyImgArr[0].getHeight());
+    
     // set difficulty based health
     if (difficulty == 0){
-      player = new Character(playerImgArr, 5, 5, 750, 0.3, 0.8);
+      player = new Character(playerImgArr, 5, 5, 750, 0.3, 0.5, 25);
     } else {
-      player = new Character(playerImgArr, 5, 2, 750, 0.3, 0.8);
+      player = new Character(playerImgArr, 5, 2, 750, 0.3, 0.5, 25);
       
     }
-    //  Enemy(Image[] img, float speed, float health, float attackCooldown, float hitBoxAdj)
-    enemy1 = new Enemy(enemyImgArr, 1, 1, 100, 0.5);
+    // Enemy(Image[] img, float speed, float health, float attackCooldown, float hitBoxAdj, float meleeReach)
+    enemy1 = new Enemy(enemyImgArr, 1, 1, 100, 0.7, 10);
     enemies.add(enemy1);
     
     camera = new Camera(width/2, height/2);

@@ -46,6 +46,10 @@ class Game{
     switch (currScreen){ //<>// //<>//
       case -1: // playing game
         gamePlay.updateDraw();
+        if (gamePlay.gameOver){
+          println("GAME OVER");
+          currScreen = 0;
+        }
         break;
       case 0: // menu
         drawMenu(); 

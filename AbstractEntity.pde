@@ -4,18 +4,18 @@ abstract class AbstractEntity {
   PImage bullet;
   PVector loc = new PVector();
   PVector look = new PVector();
-  float speed;
+  
   boolean isAttacking = false;
   boolean up, down, left, right;
-  float attackCooldown;
   int lastAttackTime = 0;
-  float attackDamage;
   
+  float speed, attackCooldown, attackDamage, hitBoxWidth, hitBoxHeight;
   float hitBoxAdj = 1;
+  float meleeReach = 5;
   
   float health;
   
-  AbstractEntity(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj){
+  AbstractEntity(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float meleeReach){
     this.img = img;
     loc.x = width/2;
     loc.y = height/2;
@@ -24,9 +24,12 @@ abstract class AbstractEntity {
     this.attackCooldown = attackCooldown;
     this.attackDamage = attackDamage;
     this.hitBoxAdj = hitBoxAdj;
+    this.meleeReach = meleeReach;
+    hitBoxWidth = img[0].getWidth() * hitBoxAdj;
+    hitBoxHeight = img[0].getHeight() * hitBoxAdj;
   }
   
-  AbstractEntity(Image[] img, String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj){
+  AbstractEntity(Image[] img, String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float meleeReach){
     this.img = img;
     bullet = loadImage(bulletFile);
     loc.x = width/2;
@@ -36,6 +39,9 @@ abstract class AbstractEntity {
     this.attackCooldown = attackCooldown;
     this.attackDamage = attackDamage;
     this.hitBoxAdj = hitBoxAdj;
+    this.meleeReach = meleeReach;
+    hitBoxWidth = img[0].getWidth() * hitBoxAdj;
+    hitBoxHeight = img[0].getHeight() * hitBoxAdj;
   }
   
   
@@ -64,15 +70,55 @@ abstract class AbstractEntity {
     
   //}
   
-  void attackIntersects(AbstractEntity entity){
-    float attackReach = (img[0].getWidth() * hitBoxAdj)/2; // technically, if up or down, use .getHeight(), but images are square so no need to differentiate
-    
-    
-    
-    
-  
-  
-  
+  boolean attackIntersects(AbstractEntity entity){
+    float endReach;
+    float targetBoundaryX = 0;
+    float targetBoundaryY = 0;
+
+    /* 4 Directions (up, right, down, left). Picture index follows same order 
+        so  images[0] ---> UP [ACTION 0] 
+            images[1] ---> RIGHT [ACTION 0]  
+            images[2] ---> DOWN [ACTION 0] 
+            images[3] ---> LEFT [ACTION 0]
+            
+            images[4] ---> UP [ACTION 1] 
+            images[5] ---> RIGHT [ACTION 1]  
+            images[6] ---> DOWN [ACTION 1] 
+            images[7] ---> LEFT [ACTION 1]  
+            
+        etc
+    */
+    switch (currImg % 4){
+     case 0: // up
+       endReach = loc.y + meleeReach;
+       targetBoundaryY = entity.loc.y - (hitBoxHeight/2);
+       if (endReach < targetBoundaryY){
+        return true; 
+       }
+       break;
+     case 1: // right
+       endReach = loc.x + meleeReach;
+       targetBoundaryX = entity.loc.x - (hitBoxWidth/2);
+       if (endReach > targetBoundaryX){
+        return true; 
+       }
+       break;
+     case 2: // down
+       endReach = loc.y - meleeReach;
+       targetBoundaryY = entity.loc.y - (hitBoxHeight/2);
+       if (endReach > targetBoundaryY){
+        return true; 
+       }
+       break;
+     case 3: // left
+       endReach = loc.x - meleeReach;
+       targetBoundaryX = entity.loc.x + (hitBoxWidth/2);
+       if (endReach < targetBoundaryX){
+        return true; 
+       }
+       break;
+    }
+    return false;
   }
     
     
@@ -93,30 +139,37 @@ abstract class AbstractEntity {
     float entityHeight = img[0].getHeight() * hitBoxAdj;
     
     // melee reach -- when entity attacks "something", it the attack is inside the "something's" hitbox, "something" takes damage
-    line(loc.x - (entityWidth/2), loc.y, loc.x + (entityWidth/2), loc.y);
+    line(loc.x - (entityWidth/2) - meleeReach, loc.y, loc.x + (entityWidth/2) + meleeReach, loc.y);
     
     fill(0, 0, 0, 0);
     
-    // just a guideline circle . pixel art is 64x64 exported to 500%
-    ellipse(loc.x, loc.y, 64*5, 64*5);
-    
+    //// just a guideline circle . pixel art is 64x64 exported to 500%
+    //ellipse(loc.x, loc.y, img[0].getWidth(), img[0].getHeight());
+
 // GREEN 
     stroke(0, 255, 0);
     fill(0, 0, 0, 0);
     
     // hitbox -- if entity gets attacked , and the attack is within this ellipse, they take damage
-    ellipse(loc.x, loc.y, 32*6 * hitBoxAdj, 32*6 * hitBoxAdj);
-    
-    // just a guideline
-    line(loc.x - (entityWidth/2), loc.y - (entityHeight/2), loc.x + (entityWidth/2), loc.y + (entityHeight/2));
+    ellipse(loc.x, loc.y, entityWidth, entityHeight);
+    line(loc.x - entityWidth/2 , loc.y, loc.x + entityWidth/2 , loc.y);
+
+    // just a diagonal guideline
+    line(loc.x - (entityWidth/2)  - meleeReach , loc.y - (entityHeight/2) - meleeReach, loc.x + (entityWidth/2) + meleeReach, loc.y + (entityHeight/2) + meleeReach);
     
     
 // BLUE
     stroke(0, 0, 255);
     
-    // just a guideline
-    line(loc.x, loc.y - (entityHeight/2), loc.x, loc.y + (entityHeight/2));
+    // melee reach -- when entity attacks "something", it the attack is inside the "something's" hitbox, "something" takes damage
+    line(loc.x, loc.y - (entityHeight/2) - meleeReach, loc.x, loc.y + (entityHeight/2) + meleeReach);
     
+  
+// YELLOW
+    stroke(255, 255, 0);
+    
+    // circle of melee reach
+    ellipse(loc.x, loc.y, entityWidth + ( 2 * meleeReach), entityHeight + ( 2 * meleeReach));
     
     popMatrix();
   }
