@@ -1,19 +1,19 @@
 class Enemy extends AbstractEntity {
-  Enemy(Image[] img, float speed, float health, float attackCooldown){
-    super(img, speed, health, attackCooldown, 1);
+  Enemy(Image[] img, float speed, float health, float attackCooldown, float hitBoxAdj){
+    super(img, speed, health, attackCooldown, 1, hitBoxAdj);
   }
   
-  Enemy(Image[] img, String bulletFile, float speed, float health, float attackCooldown){
-    super(img, bulletFile, speed, health, attackCooldown, 1);
+  Enemy(Image[] img, String bulletFile, float speed, float health, float attackCooldown, float hitBoxAdj){
+    super(img, bulletFile, speed, health, attackCooldown, 1, hitBoxAdj);
   }
   
   float radiusDist = 30;
-  float xDir, yDir;
+  float xDir, yDir, lastDir;
   boolean withinRadius = false;
+  
+
   //boolean tracking = true;
   //boolean lockDir = false;
-  
-  
   
   
   void update(float x, float y){
@@ -39,9 +39,31 @@ class Enemy extends AbstractEntity {
     //}
     
 
-    xDir = (loc.x < x) ? 1 : -1;
+    // if enemy location x/y is less than x/y , we should go in the Positive x/y direction
+    // if enemy location x/y is greater than x/y , we should go in the Negative x/y direction
+    xDir = (loc.x < x) ? 1 : -1; 
     yDir = (loc.y < y) ? 1 : -1;
 
+    // set a primary direction based on distance to x, y (player)
+    float xDistance = Math.abs(loc.x - x);
+    float yDistance = Math.abs(loc.y - y);
+
+    // if x distance is greater, use horizontal positioning
+    if (xDistance > yDistance){
+      if (xDir == 1){
+        currImg = 5;
+      } else {
+        currImg = 7;
+      }
+    } else { // if x distance less than y distance, use vertical positioning
+      if (yDir == 1){
+        currImg = 6;
+      } else {
+        currImg = 4;
+      }
+    }
+
+      
     loc.x += xDir * speed;
     loc.y += yDir * speed;
     
@@ -49,18 +71,18 @@ class Enemy extends AbstractEntity {
     look.x = xDir;
     look.y = yDir;
     
-    if (isAttacking && millis() - lastAttackTime > 100){
+    if (isAttacking && millis() - lastAttackTime > 30){
       isAttacking = false;
       img[currImg].resetFrame();
+
     }
     
     if (canAttack()){
       isAttacking = true;
       lastAttackTime = millis();
-      currImg = 0;
-    } else {
-       currImg = 1; 
-    }
+      
+      currImg = currImg % 4;
+    } 
 
     
     /* --------------------DEBUG TEXT-------------------- */

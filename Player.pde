@@ -1,10 +1,10 @@
 class Character extends AbstractEntity {
-  Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage){
-    super(img, speed, health, attackCooldown, attackDamage);
+  Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj){
+    super(img, speed, health, attackCooldown, attackDamage, hitBoxAdj);
   }
   
-  Character(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage){
-    super(img, bulletFile, speed, health, attackCooldown, attackDamage);
+  Character(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj){
+    super(img, bulletFile, speed, health, attackCooldown, attackDamage, hitBoxAdj);
   }
 
   void setViewingDir(float x, float y){
@@ -18,6 +18,9 @@ class Character extends AbstractEntity {
       isAttacking = false;
       img[currImg].resetFrame();
       currImg = (currImg % 4);
+      if (!up && !down && !right && !left){
+        currImg += 8;
+      }
     }
     
     // allows attacks to automatically succeed each other without having to click (press and release)

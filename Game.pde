@@ -43,7 +43,7 @@ class Game{
     }
 
     // draw the correct buttons / sliders needed for current screen
-    switch (currScreen){ //<>//
+    switch (currScreen){ //<>// //<>//
       case -1: // playing game
         gamePlay.updateDraw();
         break;
