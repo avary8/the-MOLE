@@ -1,40 +1,43 @@
-
 // Ava McCormack
 
 
-/* TODO
-    - add sfx
-    - add overlay on GamePlay
+
+/* TODO V2
+    [x] implemented good scoping
     
-    - add death / win screen 
-    
-    - upgrades
-    
-    - implement levels
-      - adjust number of enemies based on level
-    
-    - in game pause (settings)
-    
+    [x] added GamePlayer class to handle variables when playing the game
+    [x] connect current gameplay with menu screens
+    [x] complete collision check with hitboxes
+    [x] add sfx 
+    [x] add overlay on GamePlay
+    [x] add death / win screen 
+    [x] in game pause (settings)
     
     
-    -- bosses
+    [] upgrades
     
-    - projectile if i get to it
+    [] implement levels
+      [] adjust number of enemies based on level
+    
+    
+    -- boss
+
+WEIRD BUGS
+   [RESOLVED] sfx volume does not change. not sure why not. ive tried everything
+         wasnt sure if i'd ever figure it out. put .amp() inside the for loop and then .stop .play right after each other
+
+
 */
 
 
-/* ---------------------------------------- NOTES ----------------------------------------
-  i implemented a lot of code as you can see, but I was testing it in a different folder to just figure out movement, clicking, loading images, etc. (i've never really made a game besides minesweeper in prog 2) 
-    so it is not integrated with this Main yet . since this folder was originally just testing out the Menu selection stuff
-    also i havent commented most of it yet since i was just testing stuff, but figured i'd include it in the submission
-    
- this Main will just have Menu selection stuff working.
-   click through the Menu buttons, see all the pages so far, hear the game music , adjust music volume .
-   
-   check out the art assets i drew in data folder 
-   
-   
-   
+/* ---------------------------------------- NOTES V2----------------------------------------
+
+- most things implemented. still need to implement: upgrades, levels, bosses
+
+- still need to write most comments too... that's more of a polishing thing I do at the end since things may change
+
+projectile class is made but not completely working and I may not end up using it anyways
+
 - all art assets + background -- I created in Aseprite
 - Game Music -- I created in garageband
 - Sound Effects -- Downloaded from freesound.org 
@@ -53,15 +56,9 @@ import processing.sound.*; // import Sound library
 ControlP5 cp5;
 
 SoundFile music;
+SoundFile[] gameSounds;
 
-
-// Screen art to load
-String[] names = { 
-  "menu.png",
-  "settings.png",
-  "quit.png",
-  "difficulty.png",
-};
+PFont font;
 
 Game game; // Game Class
 boolean isOpening;
@@ -140,6 +137,7 @@ void yesButton(){
   exit();
 }
 
+
 void noButton(){
   println("No BUTTON CLICKED");
   game.setCurrScreen(0); 
@@ -156,16 +154,40 @@ void hardButton(){
   game.startGame(1); 
 }
 
+void backToMenuButton(){
+  println("backToMenu BUTTON CLICKED");
+  game.setCurrScreen(0);
+}
+
+void resumeButton(){
+  println("resume BUTTON CLICKED");
+  if (game.getCurrScreen() == 4){
+    game.drawGamePlay();
+  } else {
+    game.startGame(0);
+  }
+  game.setCurrScreen(-1);
+}
+
 
 // ########################## INITIALIZATIONS ########################## //
 
-
-void initialize(){
+private void initialize(){
   isOpening = true;
   titleScreen = new Image("title-anim-", 8, 50);
   
+  font = createFont("AGENCYB.TTF", 64);
+  
   music = new SoundFile(this, "music.wav");
+  music.amp(0.5);
+  
+  gameSounds = new SoundFile[3];
+  gameSounds[0] = new SoundFile(this, "hurt.wav");
+  gameSounds[1] = new SoundFile(this, "slash_hit.wav");
+  gameSounds[2] = new SoundFile(this, "slash_miss.wav");
+ 
+  
   cp5 = new ControlP5(this); 
-  game = new Game(names, cp5, music);
+  game = new Game();
   game.setCurrScreen(0);
 }

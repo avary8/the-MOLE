@@ -1,38 +1,50 @@
-String playerString = "mole-";
-String antString = "ant-";
-
 class GamePlay{
-  Map[][] gameBGs = new Map[3][3];
-  Camera camera;
-  Character player;
-  Enemy enemy1;
-  ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-  ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
+  private String playerString = "mole-";
+  private String antString = "ant-";
   
-  int maxEnemyCount = 20;
+  private Map[][] gameBGs = new Map[3][3];
+  private Camera camera;
+  private Player player;
+  private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+  private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
+  
+  private int maxEnemyCount = 20;
   
   //UpgradeManager upgradeManager;
-  boolean upgradeScreen = false;
+  private boolean upgradeScreen = false;
   
-  boolean gameOver = false;
+  private int gameStatus = -1; // -1 = playing , 0 = lost , 1 = won
   
-  int difficulty = 0;
-  int level = 0;
-  int kills = 0;
+
+  private int difficulty = 0;
+  private int level = 0;
+  private int kills = 0;
+  private float multiplier = 1;
+  
+  private float effectsVol = 1.0;
   
   
   GamePlay(int difficulty){
     this.difficulty = difficulty;
-    
+    if (difficulty == 1){
+      multiplier = 1.5;
+    }
+
     loadGameBackgrounds();
     loadClasses();
   }
   
 
 
-  void updateDraw(){
+  public void updateDraw(){
+    if (upgradeScreen){ // if on upgradeScreen, show it and then return (so game is effectively paused)
+      
+      return;
+    }
+    
     background(0);
-    camera.update(player.loc.x, player.loc.y);
+    
+    camera.update(player.getLoc().x, player.getLoc().y);
     camera.applyTransform();
     drawBackgrounds();
   
@@ -42,14 +54,13 @@ class GamePlay{
     player.display();
     
     for (Enemy e : enemies){ //<>//
-      e.update(player.loc.x, player.loc.y); //<>//
+      e.update(player.getLoc().x, player.getLoc().y); //<>//
       e.display(); //<>//
     }
 
-
     popMatrix();
     
-    text(dist(player.loc.x, player.loc.y, player.look.x, player.look.y), 300, 300);
+    text(dist(player.getLoc().x, player.getLoc().y, player.look.x, player.look.y), 300, 300);
     
     for (Projectile p: projectiles){
       p.update();
@@ -58,33 +69,38 @@ class GamePlay{
     
     checkCollisions();  
     
+    drawOverlay();
+    
     text("num bullets: " + projectiles.size(), 800, 800);
-    
-    
-    text("player HEALTH: " + player.health, 900, 900);
     
   }
   
-  
-  
-  void keyPressed(char key){
+  public void keyPressed(char key){
     player.keyPressed(key);
   }
   
-  void keyReleased(char key){
+  public void keyReleased(char key){
     player.keyReleased(key);
   }
   
-  void mousePressed(){
+  public void mousePressed(){
     player.mousePressed();
   }
   
+  public int getGameStatus(){
+    return gameStatus;
+  }
   
-  void drawBackgrounds() {
+  public void setEffectsVol(float effectsVol){
+    this.effectsVol = effectsVol/100.0;
+  }
+  
+  
+  private void drawBackgrounds() {
     pushMatrix();
     imageMode(CORNER);
-    int gridX = int(camera.loc.x / 1920);
-    int gridY = int(camera.loc.y / 1080);
+    int gridX = int(camera.getLoc().x / 1920);
+    int gridY = int(camera.getLoc().y / 1080);
     
     for (int i = max(0, gridX - 1); i <= min(2, gridX + 1); i++) {
       for (int j = max(0, gridY - 1); j <= min(2, gridY + 1); j++) {
@@ -94,37 +110,118 @@ class GamePlay{
     popMatrix();
   }
   
-  
-  void checkCollisions(){
+  private void drawOverlay(){
+    pushMatrix();
+    resetMatrix();
+    fill(255);
+    textSize(32);
     
+    // left corner
+    text("[ESC]", 50, 50);
+    text("HEALTH: " + player.health, 50, 80);
+    
+    // right corner
+    text("Kills: " + kills, width - 150, 50);
+    text("Level: " + level, width - 150, 80);
+    
+     
+    popMatrix();
+  }
+  
+  private void checkLevel(){
+    // math with multiplier and kills
+    
+  }
+  
+  
+  private void checkCollisions(){
+    Image[] enemyImg = enemies.get(0).getImg();
+    
+    // iterate through all enemies
     for (int i = enemies.size() - 1; i >= 0; i--) {
+      // set volume for each sfx
+      gameSounds[1].amp(effectsVol);
+      gameSounds[2].amp(effectsVol);  
+      gameSounds[0].amp(effectsVol);
+    
       Enemy enemy = enemies.get(i);
       
-      if (player.isAttacking && !player.hasHit && player.attackIntersects(enemy)){
-       println("PLAYER HIT ENEMY"); 
-       enemy.takeDamage(player.attackDamage);
-       player.hasHit = true;
+      // CHECK if PLAYER hits ENEMY
+      if (player.getIsAttacking()){
+        if (!player.hasHit && player.attackIntersects(enemy)){ // if player hits their first enemy during this for loop check
+          gameSounds[1].stop();
+          gameSounds[1].play(); // hit sound
+
+          enemy.takeDamage(player.attackDamage);
+          player.hasHit = true; // this variable is set so that Player cant just swing through a group of 10 
+          
+        } else if (!player.hasHit && !player.attackIntersects(enemy)) { // if player misses
+          gameSounds[2].stop();
+          gameSounds[2].play(); // miss sound
+        }
       }
       
-
-      if (enemy.isAttacking && !enemy.hasHit  && enemy.attackIntersects(player)) {
+      // CHECK if ENEMY hits PLAYER
+      // some iframes to player after being hit. check if player is immune or not. check other stuff too . basically same as above 
+      if (!player.isImmune() && enemy.getIsAttacking() && !enemy.hasHit  && enemy.attackIntersects(player)) { 
+        gameSounds[0].stop();
+        gameSounds[0].play(); // player hurt sound
+        
         player.takeDamage(enemy.attackDamage);
+        player.startImmunity(); // function to begin timing the immunity
         enemy.hasHit = true;
       }
       
-      if (enemy.health <= 0){
+      
+      // CHECK HEALTH of ENEMY
+      if (enemy.health <= 0){ 
         enemies.remove(i);
         kills += 1;
-        spawnEnemies(enemy.img);
-        println("PLAYER KILLS: " + kills);
       }
       
+      // CHECK HEALTH of PLAYER
       if (player.health <= 0){
         println(" PLAYER HAS " + player.health + " LIVES ");
-        //gameOver = true;
-        //break;
+        gameStatus = 0; // game LOST
+        break;
       }
       
+    }
+    spawnEnemies(enemyImg); // spawn enemies to replace ones that have died
+  }
+  
+  
+  
+  private void spawnEnemies(Image[] imgArr){
+    /*  - spawn enemies a little outside the game borders. randomize distance from border and which side (top, bottom, left, right)
+        - there is a max number of enemies able to be present at a time
+    */
+    
+    for (int i = enemies.size(); i < maxEnemyCount; i++){
+      int spawnBuffer = int(random(200));
+      int spawnSide = int(random(4));
+      float spawnX, spawnY;
+    
+      switch (spawnSide){
+        case 0: // top
+          spawnX = random(width * 3);
+          spawnY = -spawnBuffer;
+          break;
+       case 1:  // right
+         spawnX = (width * 3) + spawnBuffer;
+         spawnY = random(height * 3);
+         break;
+       case 2:  // bottom
+         spawnX = random(width * 3);
+         spawnY = (3 * height) + spawnBuffer;
+         break;
+       default:  // left
+         spawnX = (width * 3) - spawnBuffer;
+         spawnY = random(height * 3);
+         break;
+      }
+      // Enemy(Image[] img, float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach)
+      enemies.add(new Enemy(imgArr, spawnX, spawnY, 1, 1, 100, 0.7, 10));
     }
     
   }
@@ -133,7 +230,7 @@ class GamePlay{
   
   // ########################## INITIALIZE ########################## //
   
-  void loadGameBackgrounds(){
+  private void loadGameBackgrounds(){
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
           PImage img = loadImage("map-" + i + j + ".png");
@@ -158,13 +255,12 @@ class GamePlay{
     
     // set difficulty based health
     if (difficulty == 0){
-      // Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach)
-      player = new Character(playerImgArr, 5, 5, 750, 0.3, 0.5, 50);
+      // Player(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach)
+      player = new Player(playerImgArr, 5, 5, 750, 0.3, 0.5, 50);
     } else {
-      player = new Character(playerImgArr, 5, 2, 750, 0.3, 0.5, 50);
+      player = new Player(playerImgArr, 5, 2, 750, 0.3, 0.5, 50);
       
     }
-
 
     spawnEnemies(enemyImgArr);
     
@@ -247,35 +343,6 @@ class GamePlay{
     //enemyImgArr[1] = new Image(antString, 1);
   }
   
-  
-  void spawnEnemies(Image[] imgArr){
-    for (int i = enemies.size(); i < maxEnemyCount; i++){
-      int spawnBuffer = int(random(200));
-      int spawnSide = int(random(4));
-      float spawnX, spawnY;
-    
-      switch (spawnSide){
-        case 0: // top
-          spawnX = random(width * 3);
-          spawnY = -spawnBuffer;
-          break;
-       case 1:  // right
-         spawnX = (width * 3) + spawnBuffer;
-         spawnY = random(height * 3);
-         break;
-       case 2:  // bottom
-         spawnX = random(width * 3);
-         spawnY = (3 * height) + spawnBuffer;
-         break;
-       default:  // left
-         spawnX = (width * 3) - spawnBuffer;
-         spawnY = random(height * 3);
-         break;
-      }
-      // Enemy(Image[] img, float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach)
-      enemies.add(new Enemy(imgArr, spawnX, spawnY, 1, 1, 100, 0.7, 10)); //<>//
-    }
-    
-  }
-  
+ //<>//
+
 }

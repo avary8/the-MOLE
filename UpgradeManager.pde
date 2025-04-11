@@ -7,13 +7,10 @@ class UpgradeManager {
   // array to pick random 3, and assign them to the PICK SCREEN 
   
   
-  
-  
-  
-  
+ 
   
   /* something like this im thinkin
-    void upgrade(Entity entity, SOME_INDICATION_OF_UPGRADE (maybe enum ?)){
+    void upgrade(Entity entity, SOME_INDICATION_OF_UPGRADE (maybe enum ? or just array)){
      // maybe also have an array of upgrade numbers or not idk
       
       switch(upgrade){
@@ -30,6 +27,7 @@ class UpgradeManager {
           entity.modifyAttackReach( float );
           break;
         
+        etc
         
       }
       

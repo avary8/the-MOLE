@@ -1,20 +1,20 @@
 abstract class AbstractEntity {
-  Image[] img;
-  int currImg;
-  PImage bullet;
-  PVector loc = new PVector();
-  PVector look = new PVector();
+  protected Image[] img;
+  protected int currImg;
+  protected PImage bullet;
+  protected PVector loc = new PVector();
+  protected PVector look = new PVector();
   
-  boolean isAttacking = false;
-  boolean hasHit = false;
-  boolean up, down, left, right;
-  int lastAttackTime = 0;
+  protected boolean isAttacking = false;
+  protected boolean hasHit = false;
+  protected boolean up, down, left, right;
+  protected int lastAttackTime = 0;
   
-  float speed, attackCooldown, attackDamage, hitBoxWidth, hitBoxHeight;
-  float hitBoxAdj = 1;
-  float attackReach = 5;
+  protected float speed, attackCooldown, attackDamage, hitBoxWidth, hitBoxHeight;
+  protected float hitBoxAdj = 1;
+  protected float attackReach = 5;
   
-  float health;
+  protected float health;
   
   AbstractEntity(Image[] img, float x, float y, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     this.img = img;
@@ -46,7 +46,7 @@ abstract class AbstractEntity {
   }
   
   
-  void display(){
+  public void display(){
     pushMatrix();
     stroke(255, 255, 0);
     img[currImg].display(loc.x, loc.y);
@@ -57,17 +57,29 @@ abstract class AbstractEntity {
     drawGuides();
   }
   
-  boolean canAttack(){
+  public boolean getIsAttacking(){
+    return isAttacking;
+  }
+  
+  public PVector getLoc(){
+    return loc;
+  }
+  
+  public Image[] getImg(){
+    return img;
+  }
+  
+  protected boolean canAttack(){
     return millis() - lastAttackTime >= attackCooldown;
   }
   
-  void takeDamage(float dmg){
+  public void takeDamage(float dmg){
     println("DMG: " + dmg);
     health -= dmg;
   }
   
   
-  boolean attackIntersects(AbstractEntity entity){
+  public boolean attackIntersects(AbstractEntity entity){
     float attackDirX = 0;
     float attackDirY = 0;
     
@@ -93,7 +105,7 @@ abstract class AbstractEntity {
     
   
   // used for debugging
-  void drawGuides(){
+  protected void drawGuides(){
     
     // projectile viewing line (aka player to where the mouse is pointing)
     PVector end = PVector.add(loc, look);

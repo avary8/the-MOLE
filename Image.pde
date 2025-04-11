@@ -30,7 +30,7 @@ class Image {
     }
   }
   
-  void display(float xpos, float ypos) {
+  public void display(float xpos, float ypos) {
     frameCounter++;
     if (frameCounter >= frameDelay){
       frame = (frame+1) % imgCount;
@@ -39,23 +39,23 @@ class Image {
     image(images[frame], xpos, ypos, images[frame].width, images[frame].height);
   }
   
-  boolean isFinished(){
+  public boolean isFinished(){
     return (frame >= images.length-1) && (frameCounter == frameDelay - 1); 
   }
   
-  int getWidth() {
+  public int getWidth() {
     return images[0].width;
   }
   
-  int getHeight() {
+  public int getHeight() {
     return images[0].height;
   }
   
-  void setFrameDelay(int frameDelay) {
+  public void setFrameDelay(int frameDelay) {
     this.frameDelay = frameDelay;
   }
   
-  void resetFrame(){
+  public void resetFrame(){
     frame = 0;
     frameCounter = 0;
   }

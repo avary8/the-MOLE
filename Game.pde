@@ -1,39 +1,41 @@
 class Game{
-  PFont font;
-  SoundFile music;
-  PImage[] screens;
-  Image titleAnimaton;
+  // Screen art to load
+  private String[] names = { 
+    "menu.png",
+    "settings.png",
+    "quit.png",
+    "difficulty.png",
+    "settings-in-game.png",
+    "game-lost.png",
+    "game-won.png"
+  };
   
-  int currScreen;
+  private PImage[] screens;
+
+  private int currScreen;
   
-  GamePlay gamePlay;
+  private GamePlay gamePlay;
   
-  // cp5 , buttons , and sliders
-  ControlP5 cp5; 
-  Button startButton, settingsButton, quitButton, escapeButton, yesButton, noButton, normalButton, hardButton;
-  Slider musicVolSlider, effectsVolSlider;
+  // cp5 buttons and sliders
+  private Button startButton, settingsButton, quitButton, escapeButton, yesButton, noButton, normalButton, hardButton, backMenuButton, resumeButton;
+  private Slider musicVolSlider, effectsVolSlider;
   
-  int musicVol = 100;
-  int effectsVol = 100;
+  private float musicVol = 100;
+  private float effectsVol = 100;
   
-  Game(String[] names, ControlP5 cp5, SoundFile music){
+  Game(){
     // load images for screens
     screens = new PImage[names.length];
     for (int i = 0; i < names.length; i++){
       screens[i] = loadImage(names[i]);
     }
-    this.cp5 = cp5;
-    this.music = music;
     
-    font = createFont("AGENCYB.TTF", 64);
     initButtons();
     music.loop();
-    
-    
   }
   
     
-  void display(){
+  public void display(){
     pushMatrix();
     imageMode(CORNER);
     
@@ -43,12 +45,18 @@ class Game{
     }
 
     // draw the correct buttons / sliders needed for current screen
-    switch (currScreen){ //<>// //<>// //<>// //<>// //<>//
+    switch (currScreen){ //<>// //<>//
       case -1: // playing game
-        gamePlay.updateDraw();
-        if (gamePlay.gameOver){
-          println("GAME OVER");
-          currScreen = 0;
+        switch(gamePlay.getGameStatus()){ 
+          case -1: // playing the game
+            gamePlay.updateDraw();
+            break;
+          case 0: // game LOST
+            currScreen = 5;
+            break;
+          case 1: // game WON
+            currScreen = 6;
+            break;
         }
         break;
       case 0: // menu
@@ -63,28 +71,44 @@ class Game{
       case 3: // difficulty menu
         drawDifficulty();
         break;
+      case 4: // in-game settings
+        drawInGameSettings();
+        break;
+      case 5: // game LOST 
+      case 6: // game WON 
+        drawEndGame();
+        break;
     }
     
     popMatrix();
   }
   
   
-  void setCurrScreen(int currScreen){
+  public void setCurrScreen(int currScreen){
     this.currScreen = currScreen;
+  }
+  
+  public int getCurrScreen(){
+    return currScreen;
   }
   
   
   
-  void startGame(int difficulty){
+  public void startGame(int difficulty){
     currScreen = -1;
     drawGamePlay(); // toggles off all buttons
     gamePlay = new GamePlay(difficulty);
+    gamePlay.setEffectsVol(effectsVol);
   }
   
   
   // what to do when ESC button (or key) is pressed. logic depends on what screen you are on
-  void handleESC(){
+  public void handleESC(){
     switch (currScreen){
+      case -1: // playing the game , to in-game settings
+        cp5.hide();
+        currScreen = 4;
+        break;
       case 0: // menu screen , go to quit menu 
         cp5.hide(); 
         currScreen = 2;
@@ -101,22 +125,26 @@ class Game{
         cp5.hide();
         currScreen = 0;
         break;
+      case 4: // in-game settings , go to game play
+        cp5.hide();
+        currScreen = -1;
+        break;
     }
   }
   
-  void keyPressed(char key){
+  public void keyPressed(char key){
     if (currScreen == -1){
       gamePlay.keyPressed(key);
     }
   }
 
-  void keyReleased(char key){
+  public void keyReleased(char key){
     if (currScreen == -1){
       gamePlay.keyReleased(key);
     }
   }
     
-  void mousePressed(){
+  public void mousePressed(){
     if (currScreen == -1){
       gamePlay.mousePressed();
     }
@@ -127,17 +155,18 @@ class Game{
   
   // ########################## DRAW BUTTONS / SLIDERS FOR CURR SCREEN ########################## //
   
-  void drawMenu(){
+  private void drawMenu(){
     cp5.show();
     
     toggleStartMenuButtons(true);
     toggleSettingButtons(false);
     toggleQuitMenuButtons(false);
     toggleDifficultyButtons(false);
+    toggleInGameSettingButtons(false);
   }
   
   
-  void drawSettings(){
+  private void drawSettings(){
     cp5.show();
     
     toggleStartMenuButtons(false);
@@ -146,23 +175,24 @@ class Game{
     toggleDifficultyButtons(false);
     
     // sets music volume and effects volume based on the sliders
-    musicVol = int(musicVolSlider.getValue());
-    effectsVol = int(effectsVolSlider.getValue());
-    
-    music.amp(musicVol / 100.0);
+    musicVol = musicVolSlider.getValue();
+    effectsVol = effectsVolSlider.getValue();
+
+    music.amp(musicVol / 100.0); // adding 0.5 multiplier will decrease volume even more (as in 100% will be even lower)... i guess it stacks with orgin .amp adjustment since it's looping
   }
   
-   void drawQuitSettings(){
+   private void drawQuitSettings(){
     cp5.show();
     
     toggleStartMenuButtons(false);
     toggleSettingButtons(false);
     toggleQuitMenuButtons(true);
     toggleDifficultyButtons(false);
+    toggleInGameSettingButtons(false);
   }
   
   
-  void drawDifficulty(){
+  private void drawDifficulty(){
     cp5.show();
     
     toggleStartMenuButtons(false);
@@ -173,25 +203,60 @@ class Game{
     
     toggleQuitMenuButtons(false);
     toggleDifficultyButtons(true);
+    toggleInGameSettingButtons(false);
     
     escapeButton.show(); 
   }
   
-  void drawGamePlay(){
+  public void drawGamePlay(){
     cp5.hide();
     
     toggleStartMenuButtons(false);
     toggleSettingButtons(false);
     toggleQuitMenuButtons(false);
     toggleDifficultyButtons(false);
+    toggleInGameSettingButtons(false);
+  }
+  
+    private void drawInGameSettings(){
+    cp5.show();
     
+    toggleStartMenuButtons(false);
+    escapeButton.hide();
+    toggleQuitMenuButtons(false);
+    toggleDifficultyButtons(false);
+    toggleInGameSettingButtons(true);
+    
+    // sets music volume and effects volume based on the sliders
+    musicVol = musicVolSlider.getValue();
+    effectsVol = effectsVolSlider.getValue();
+    
+    music.amp((musicVol / 100.0) * 0.5);
+    gamePlay.setEffectsVol(effectsVol);
+  }
+  
+  
+  private void drawEndGame(){
+    cp5.show();
+
+      toggleStartMenuButtons(false);
+      toggleSettingButtons(false);
+      toggleQuitMenuButtons(false);
+      toggleDifficultyButtons(false);
+      
+      
+      toggleInGameSettingButtons(true);
+      
+      musicVolSlider.hide();
+      effectsVolSlider.hide();
+
   }
   
   // ########################## SHOW/HIDE FUNCTIONS FOR BUTTONS / SLIDERS ########################## //
   
   // grouped buttons/sliders by which screen they appear on, then show / hide depending on boolean passed
   
-  void toggleStartMenuButtons(boolean toggle){
+  private void toggleStartMenuButtons(boolean toggle){
     if (toggle){
       startButton.show();
       settingsButton.show();
@@ -204,7 +269,7 @@ class Game{
   }
 
   
-  void toggleSettingButtons(boolean toggle){
+  private void toggleSettingButtons(boolean toggle){
     if (toggle){
       escapeButton.show();
       musicVolSlider.show();
@@ -216,7 +281,7 @@ class Game{
     }
   }
   
-  void toggleQuitMenuButtons(boolean toggle){
+  private void toggleQuitMenuButtons(boolean toggle){
     if (toggle){
       yesButton.show();
       noButton.show();
@@ -226,7 +291,7 @@ class Game{
     }
   }
   
-  void toggleDifficultyButtons(boolean toggle){
+  private void toggleDifficultyButtons(boolean toggle){
     if (toggle){
       normalButton.show();
       hardButton.show();
@@ -237,12 +302,28 @@ class Game{
   }
   
   
+  private void toggleInGameSettingButtons(boolean toggle){
+   if (toggle){
+     musicVolSlider.show();
+     effectsVolSlider.show();
+     backMenuButton.show();
+     resumeButton.show();
+   } else {
+     musicVolSlider.hide();
+     effectsVolSlider.hide();
+     backMenuButton.hide();
+     resumeButton.hide();
+   }
+    
+  }
+  
+  
   
   
   // ########################## INITIALIZE BUTTONS ########################## //
   
   
-  void initButtons(){
+  private void initButtons(){
     ControlFont cfont = new ControlFont(font);
     
     int sliderHeight = 75;
@@ -304,7 +385,7 @@ class Game{
     escapeButton.getCaptionLabel().setSize(escapeButton.getHeight()/2);
     
     
-    musicVolSlider = cp5.addSlider("music volume")
+    musicVolSlider = cp5.addSlider("musicVol")
     .setCaptionLabel("")
     .setPosition(xPos, yPos - 135)
     .setRange(0, 100)
@@ -319,7 +400,7 @@ class Game{
     ;
    
     
-  effectsVolSlider = cp5.addSlider("effects volume")
+  effectsVolSlider = cp5.addSlider("effectsVol")
     .setCaptionLabel("")
     .setPosition(xPos, 675)
     .setRange(0, 100)
@@ -380,13 +461,37 @@ class Game{
     .setColorActive(color(255, 255, 255, 20)); 
     
     
+        // ----------------------- In-Game Settings ---------------------
+    
+    backMenuButton = cp5.addButton("backToMenuButton")
+    .setLabel("")
+    .setPosition(353, 875)
+    .setSize(237, 45)
+    
+    .setColorBackground(color(0, 0, 0, 1))  
+    .setColorForeground(color(255, 255, 255, 20)) 
+    .setColorActive(color(255, 255, 255, 20)); 
+    
+    
+    
+    resumeButton = cp5.addButton("resumeButton")
+    .setLabel("")
+    .setPosition(1375, 875)
+    .setSize(185, 45)
+    
+    .setColorBackground(color(0, 0, 0, 1))  
+    .setColorForeground(color(255, 255, 255, 20)) 
+    .setColorActive(color(255, 255, 255, 20)); 
+    
+    
     cp5.hide();
   }
   
   
   // used for debugging
   
-  void drawGrid(){
+  private void drawGrid(){
+
     //pushMatrix();
     //stroke(255, 0, 0);
     //line(width/2, 0, width/2, height);
@@ -449,6 +554,19 @@ class Game{
     //// hard
     //line(1367, 0, 1367, height);
     //line(1514, 0, 1514, height);
+    
+    //// in-game settings / game over 
+    //stroke(255, 255, 0);
+    //// top / bottom
+    //line(0, 875 , width, 875);
+    //line(0, 920, width, 920);
+    //// back/quit to menu
+    //line(353, 0, 353, height);
+    //line(590, 0, 590, height);
+    //// play again / resume
+    //line(1375, 0, 1375, height);
+    //line(1560, 0, 1560, height);
+    
     
     
     //popMatrix();

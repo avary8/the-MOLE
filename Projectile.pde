@@ -8,20 +8,20 @@ class Projectile extends PVector {
   
   // also assign who the bullet belongs to . flag - enemy vs character bullets. OR 2 different arrays
 
-  PVector loc = new PVector();
-  PVector vel = new PVector();
+  private PVector loc = new PVector();
+  private PVector vel = new PVector();
   
   Projectile(PVector loc, PVector vel){
     this.loc = loc;
     this.vel = vel;
   }
   
-  void update(){
+  public void update(){
     add(vel);
   }
   
   
-  void display(){
+  public void display(){
     fill(0, 0, 255);
     ellipse(x, y, 20, 20);
   }

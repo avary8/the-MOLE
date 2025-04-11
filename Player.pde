@@ -1,18 +1,41 @@
-class Character extends AbstractEntity {
-  Character(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
+class Player extends AbstractEntity {
+  Player(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     super(img, width/2, height/2, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
   }
   
-  Character(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
+  Player(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     super(img, width/2, height/2, bulletFile, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
   }
+  
+  /*
+      Variables Specific to Player class
+  
+  */
+  private boolean isImmune = false;
+  private float immuneStartTime = 0.0;
+  private float immuneDuration = 500;
 
-  void setViewingDir(float x, float y){
+
+  // GETTERS , SETTERS, and other public functions
+  public void setViewingDir(float x, float y){
     look.x = x;
     look.x = y;
   }
   
-  void update(){
+  public void startImmunity(){
+    isImmune = true;
+    immuneStartTime = millis();
+  }
+  
+  public boolean isImmune(){
+   if (isImmune && millis() - immuneStartTime >= immuneDuration){ 
+     isImmune = false;
+   }
+   return isImmune;
+  }
+  
+  
+  public void update(){
     // ensures attack stops when supposed to 
     if (isAttacking && millis () - lastAttackTime > 100){
       isAttacking = false;
@@ -47,7 +70,9 @@ class Character extends AbstractEntity {
     loc.y = constrain(loc.y, ((img[0].getHeight() * 0.8) / 2), 3* 1080 - ((img[0].getHeight() * 0.8) / 2));
   }
   
-  void mouseMoved(float camX, float camY){
+  
+  
+  public void mouseMoved(float camX, float camY){
     //println("x : " +  mouseX + " y: "  + mouseY  + "loc.x: "  + loc.x + " loc.y: " + loc.y + mouseY + " camX : " + camX + " camY " + camY);
     
     PVector dir = new PVector(mouseX  - camX - loc.x, mouseY - camY - loc.y);
@@ -59,7 +84,7 @@ class Character extends AbstractEntity {
     setViewingDir(dir.x, dir.y);
   }
   
-  void mousePressed(){
+  public void mousePressed(){
     if (!isAttacking && canAttack()){
       println("player can attack");
       
@@ -71,7 +96,7 @@ class Character extends AbstractEntity {
   
 
   
-  void keyPressed(char key){
+  public void keyPressed(char key){
     print(key + " ");
     switch (key) {
      case 'w': 
@@ -103,7 +128,7 @@ class Character extends AbstractEntity {
     }
   }
   
-  void keyReleased(char key){
+  public void keyReleased(char key){
     print("r "+ key + " ");
     switch (key) {
       case 'w':
@@ -136,8 +161,6 @@ class Character extends AbstractEntity {
        currImg = (prevImg % 4) + 8;
      }
   }
-  
-  
   
   
   

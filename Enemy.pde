@@ -7,16 +7,16 @@ class Enemy extends AbstractEntity {
     super(img, x, y, bulletFile, speed, health, attackCooldown, 1, hitBoxAdj, attackReach);
   }
   
-  float radiusDist = 30;
-  float xDir, yDir, lastDir;
-  boolean withinRadius = false;
+  protected float radiusDist = 30;
+  private float xDir, yDir, lastDir;
+  private boolean withinRadius = false;
   
 
   //boolean tracking = true;
   //boolean lockDir = false;
   
   
-  void update(float x, float y){
+  public void update(float x, float y){
     
     // this is for tracking within a radius and then outside radius, continue in a direction until within radius again.
     // changing to always tracking 
