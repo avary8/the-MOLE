@@ -78,9 +78,14 @@ abstract class AbstractEntity {
     return isAttacking;
   }
   
-  public PVector getLoc(){
-    return loc;
+  public float getX(){
+    return loc.x;
   }
+  
+  public float getY(){
+    return loc.y;
+  }
+  
   
   public Image[] getImg(){
     return img;
@@ -128,8 +133,8 @@ abstract class AbstractEntity {
   protected void drawGuides(){
     
     // projectile viewing line (aka player to where the mouse is pointing)
-    PVector end = PVector.add(loc, look);
-    line (loc.x, loc.y, end.x, end.y);
+    //PVector end = PVector.add(loc, look);
+    //line (loc.x, loc.y, end.x, end.y);
     
     pushMatrix();
     
@@ -154,7 +159,7 @@ abstract class AbstractEntity {
     line(loc.x - hitBoxWidth/2 , loc.y, loc.x + hitBoxWidth/2 , loc.y);
 
     // just a diagonal guideline
-    line(loc.x - (hitBoxWidth/2)  - attackReach , loc.y - (hitBoxHeight/2) - attackReach, loc.x + (hitBoxWidth/2) + attackReach, loc.y + (hitBoxHeight/2) + attackReach);
+    //line(loc.x - (hitBoxWidth/2)  - attackReach , loc.y - (hitBoxHeight/2) - attackReach, loc.x + (hitBoxWidth/2) + attackReach, loc.y + (hitBoxHeight/2) + attackReach);
     
     
 // BLUE

@@ -1,4 +1,4 @@
-class Game{
+class Game{// commented to skip intro animation for development purposes
   // Screen art to load
   private String[] names = { 
     "menu.png",
@@ -229,7 +229,7 @@ class Game{
     musicVol = musicVolSlider.getValue();
     effectsVol = effectsVolSlider.getValue();
     
-    music.amp((musicVol / 100.0) * 0.5);
+    music.amp(musicVol / 100.0);
     gamePlay.setEffectsVol(effectsVol);
   }
   

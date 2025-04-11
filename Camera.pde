@@ -15,8 +15,12 @@ class Camera {
     translate(-cameraX, -cameraY);
   }
   
-  public PVector getLoc(){
-    return loc;
+  public float getX(){
+    return loc.x;
+  }
+  
+  public float getY(){
+    return loc.y;
   }
   
 }

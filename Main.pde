@@ -7,7 +7,7 @@
     [x] reduce unneccessary checks, draws, etc
     
     [x] added GamePlay class to handle variables when playing the game
-    [x] connect current gameplay with menu screens
+    [x] connect v1 gameplay with menu screens
     [x] complete collision check with hitboxes
     [x] add sfx 
     [x] add overlay on GamePlay
@@ -74,8 +74,6 @@ void setup(){
 }
 
 void draw(){
-  // commented to skip intro animation for development purposes
-  
   //if (isOpening){
   //  titleScreen.display(0, 0);
   //  if (titleScreen.isFinished()){
@@ -85,7 +83,6 @@ void draw(){
   //  game.display();
   //  game.drawGrid();
   //}
-  
   
   isOpening = false;
   game.display();

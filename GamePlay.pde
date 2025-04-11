@@ -51,7 +51,7 @@ class GamePlay{
     
     background(0);
     
-    camera.update(player.getLoc().x, player.getLoc().y);
+    camera.update(player.getX(), player.getY());
     camera.applyTransform();
     drawBackgrounds();
   
@@ -61,12 +61,12 @@ class GamePlay{
     player.display();
     
     for (Enemy e : enemies){ //<>//
-      e.update(player.getLoc().x, player.getLoc().y, enemyImgs); // display called from within update //<>// //<>//
+      e.update(player.getX(), player.getY(), enemyImgs); // display called from within update //<>// //<>//
     }
 
     popMatrix();
     
-    text(dist(player.getLoc().x, player.getLoc().y, player.look.x, player.look.y), 300, 300);
+    text(dist(player.getX(), player.getY(), player.look.x, player.look.y), 300, 300);
     
     for (Projectile p: projectiles){
       p.update();
@@ -123,8 +123,8 @@ class GamePlay{
   private void drawBackgrounds() {
     pushMatrix();
     imageMode(CORNER);
-    int gridX = int(camera.getLoc().x / 1920);
-    int gridY = int(camera.getLoc().y / 1080);
+    int gridX = int(camera.getX() / 1920);
+    int gridY = int(camera.getY() / 1080);
     
     for (int i = max(0, gridX - 1); i <= min(2, gridX + 1); i++) {
       for (int j = max(0, gridY - 1); j <= min(2, gridY + 1); j++) {
@@ -183,7 +183,7 @@ class GamePlay{
       
       // if enemy is within a range of the entity with bigger melee range plus a little buffer
       // helps with memory a bit 
-      if (enemy.isWithinRange(player.getLoc().x, player.getLoc().y, max(player.getMeleeRange(), enemy.getMeleeRange()) * 1.2)){
+      if (enemy.isWithinRange(player.getX(), player.getY(), max(player.getMeleeRange(), enemy.getMeleeRange()) * 1.2)){
       
         // CHECK if PLAYER hits ENEMY
         if (player.getIsAttacking()){
@@ -226,6 +226,9 @@ class GamePlay{
           break;
         }
         
+      } else if (player.getIsAttacking() && !player.hasHit && !player.attackIntersects(enemy)){
+        gameSounds[2].stop();
+        gameSounds[2].play(); // miss sound
       }
       spawnEnemies(); // spawn enemies to replace ones that have died
     }
