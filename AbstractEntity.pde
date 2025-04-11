@@ -16,6 +16,22 @@ abstract class AbstractEntity {
   
   protected float health;
   
+  // Enemy constructor without Image[] 
+  // originally was init img array with enemy however, with many many enemies, it is a waste of memory. also i can't declare a static array so modified to just save the array in GamePlay class
+  AbstractEntity(float x, float y, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach, float imgWidth, float imgHeight){
+    loc.x = x;
+    loc.y = y;
+    this.speed = speed;
+    this.health = health;
+    this.attackCooldown = attackCooldown;
+    this.attackDamage = attackDamage;
+    this.hitBoxAdj = hitBoxAdj;
+    this.attackReach = attackReach;
+    hitBoxWidth = imgWidth * hitBoxAdj;
+    hitBoxHeight = imgHeight * hitBoxAdj;
+  }
+  
+  
   AbstractEntity(Image[] img, float x, float y, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     this.img = img;
     loc.x = x;
@@ -57,6 +73,7 @@ abstract class AbstractEntity {
     drawGuides();
   }
   
+  
   public boolean getIsAttacking(){
     return isAttacking;
   }
@@ -67,6 +84,10 @@ abstract class AbstractEntity {
   
   public Image[] getImg(){
     return img;
+  }
+  
+  public float getMeleeRange(){
+    return hitBoxWidth + (2 * attackReach);
   }
   
   protected boolean canAttack(){
@@ -102,7 +123,6 @@ abstract class AbstractEntity {
     
     return (direction > 0 && dist(loc.x, loc.y, entity.loc.x, entity.loc.y) < hitBoxWidth + attackReach );
   }
-    
   
   // used for debugging
   protected void drawGuides(){
@@ -116,11 +136,9 @@ abstract class AbstractEntity {
 // RED
     
     stroke(255, 0, 0);
-    float entityWidth = img[0].getWidth() * hitBoxAdj;
-    float entityHeight = img[0].getHeight() * hitBoxAdj;
-    
+
     // melee reach -- when entity attacks "something", it the attack is inside the "something's" hitbox, "something" takes damage
-    line(loc.x - (entityWidth/2) - attackReach, loc.y, loc.x + (entityWidth/2) + attackReach, loc.y);
+    line(loc.x - (hitBoxWidth/2) - attackReach, loc.y, loc.x + (hitBoxWidth/2) + attackReach, loc.y);
     
     fill(0, 0, 0, 0);
     
@@ -132,25 +150,25 @@ abstract class AbstractEntity {
     fill(0, 0, 0, 0);
     
     // hitbox -- if entity gets attacked , and the attack is within this ellipse, they take damage
-    ellipse(loc.x, loc.y, entityWidth, entityHeight);
-    line(loc.x - entityWidth/2 , loc.y, loc.x + entityWidth/2 , loc.y);
+    ellipse(loc.x, loc.y, hitBoxWidth, hitBoxHeight);
+    line(loc.x - hitBoxWidth/2 , loc.y, loc.x + hitBoxWidth/2 , loc.y);
 
     // just a diagonal guideline
-    line(loc.x - (entityWidth/2)  - attackReach , loc.y - (entityHeight/2) - attackReach, loc.x + (entityWidth/2) + attackReach, loc.y + (entityHeight/2) + attackReach);
+    line(loc.x - (hitBoxWidth/2)  - attackReach , loc.y - (hitBoxHeight/2) - attackReach, loc.x + (hitBoxWidth/2) + attackReach, loc.y + (hitBoxHeight/2) + attackReach);
     
     
 // BLUE
     stroke(0, 0, 255);
     
     // melee reach -- when entity attacks "something", it the attack is inside the "something's" hitbox, "something" takes damage
-    line(loc.x, loc.y - (entityHeight/2) - attackReach, loc.x, loc.y + (entityHeight/2) + attackReach);
+    line(loc.x, loc.y - (hitBoxHeight/2) - attackReach, loc.x, loc.y + (hitBoxHeight/2) + attackReach);
     
   
 // YELLOW
     stroke(255, 255, 0);
     
     // circle of melee reach
-    ellipse(loc.x, loc.y, entityWidth + ( 2 * attackReach), entityHeight + ( 2 * attackReach));
+    ellipse(loc.x, loc.y, hitBoxWidth + ( 2 * attackReach), hitBoxHeight + ( 2 * attackReach));
     
     popMatrix();
   }

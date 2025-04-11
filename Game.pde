@@ -14,8 +14,6 @@ class Game{
 
   private int currScreen;
   
-  private GamePlay gamePlay;
-  
   // cp5 buttons and sliders
   private Button startButton, settingsButton, quitButton, escapeButton, yesButton, noButton, normalButton, hardButton, backMenuButton, resumeButton;
   private Slider musicVolSlider, effectsVolSlider;
@@ -45,9 +43,9 @@ class Game{
     }
 
     // draw the correct buttons / sliders needed for current screen
-    switch (currScreen){ //<>// //<>//
+    switch (currScreen){ //<>// //<>// //<>//
       case -1: // playing game
-        switch(gamePlay.getGameStatus()){ 
+        switch(gamePlay.getGameStatus()){
           case -1: // playing the game
             gamePlay.updateDraw();
             break;
@@ -239,17 +237,22 @@ class Game{
   private void drawEndGame(){
     cp5.show();
 
-      toggleStartMenuButtons(false);
-      toggleSettingButtons(false);
-      toggleQuitMenuButtons(false);
-      toggleDifficultyButtons(false);
-      
-      
-      toggleInGameSettingButtons(true);
-      
-      musicVolSlider.hide();
-      effectsVolSlider.hide();
-
+    toggleStartMenuButtons(false);
+    toggleSettingButtons(false);
+    toggleQuitMenuButtons(false);
+    toggleDifficultyButtons(false);
+    
+    
+    toggleInGameSettingButtons(true);
+    
+    musicVolSlider.hide();
+    effectsVolSlider.hide();
+    pushMatrix();
+    textFont(font);
+    textSize(64);
+    text(gamePlay.getKills(), 1300, 517);
+    text(gamePlay.getLevel(), 1300, 617);
+    popMatrix();
   }
   
   // ########################## SHOW/HIDE FUNCTIONS FOR BUTTONS / SLIDERS ########################## //
@@ -324,8 +327,6 @@ class Game{
   
   
   private void initButtons(){
-    ControlFont cfont = new ControlFont(font);
-    
     int sliderHeight = 75;
     int sliderWidth = 600;
     
@@ -364,8 +365,6 @@ class Game{
     .setColorBackground(color(0, 0, 0, 1))  
     .setColorForeground(color(0, 0, 0, 20)) 
     .setColorActive(color(0, 0, 0, 20)); 
-    
-    
     
     
    

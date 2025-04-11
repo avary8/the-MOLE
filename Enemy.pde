@@ -1,4 +1,10 @@
 class Enemy extends AbstractEntity {
+  
+  Enemy(float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach, float imgWidth, float imgHeight){
+    super(x, y, speed, health, attackCooldown, 1, hitBoxAdj, attackReach, imgWidth, imgHeight);
+  }
+  
+  
   Enemy(Image[] img, float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach){
     super(img, x, y, speed, health, attackCooldown, 1, hitBoxAdj, attackReach);
   }
@@ -9,14 +15,27 @@ class Enemy extends AbstractEntity {
   
   protected float radiusDist = 30;
   private float xDir, yDir, lastDir;
-  private boolean withinRadius = false;
+  //private boolean withinRadius = false;
   
 
   //boolean tracking = true;
   //boolean lockDir = false;
   
   
-  public void update(float x, float y){
+    
+  public void display(Image[] img){
+    pushMatrix();
+    stroke(255, 255, 0);
+    img[currImg].display(loc.x, loc.y);
+    
+    
+    popMatrix();
+    
+    drawGuides();
+  }
+  
+  
+  public void update(float x, float y, Image[] img){
     
     // this is for tracking within a radius and then outside radius, continue in a direction until within radius again.
     // changing to always tracking 
@@ -84,16 +103,25 @@ class Enemy extends AbstractEntity {
       
       currImg = currImg % 4;
     } 
+    
+    //if (isWithinRange(x, y, 1600)){
+    //  display(); 
+    //}
 
     
     /* --------------------DEBUG TEXT-------------------- */
-    fill(255);
+    //fill(255);
     //text("player to enemy1 dist: " + distance, 400, 400);
     //text("withinRadius: " + withinRadius, 400, 420);
     //text("tracking: " + tracking, 400, 440);
-    text("x to x: " + abs(loc.x - x) , 400, 460);
-    text("y to y: " + abs(loc.y - y) , 400, 480);
+    //text("x to x: " + abs(loc.x - x) , 400, 460);
+    //text("y to y: " + abs(loc.y - y) , 400, 480);
     /* --------------------DEBUG TEXT-------------------- */
 
+  }
+  
+  public boolean isWithinRange(float x, float y, float radius) {
+    float distToPlayer = dist(loc.x, loc.y, x, y);
+    return distToPlayer <= radius;
   }
 }

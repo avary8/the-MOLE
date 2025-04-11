@@ -6,18 +6,19 @@ class GamePlay{
   private Camera camera;
   private Player player;
   private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+  private Image[] enemyImgs;
   private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
   
-  private int maxEnemyCount = 20;
+  private int maxEnemyCount = 100;
   
-  //UpgradeManager upgradeManager;
+  UpgradeManager upgradeManager;
   private boolean upgradeScreen = false;
   
   private int gameStatus = -1; // -1 = playing , 0 = lost , 1 = won
   
 
   private int difficulty = 0;
-  private int level = 0;
+  private int level = 1;
   private int kills = 0;
   private float multiplier = 1;
   
@@ -29,16 +30,22 @@ class GamePlay{
     if (difficulty == 1){
       multiplier = 1.5;
     }
-
+    upgradeManager = new UpgradeManager();
+    
     loadGameBackgrounds();
     loadClasses();
   }
-  
 
 
   public void updateDraw(){
     if (upgradeScreen){ // if on upgradeScreen, show it and then return (so game is effectively paused)
-      
+      pushMatrix();
+      imageMode(CENTER);
+      drawBackgrounds();
+      popMatrix();
+      drawOverlay();
+
+      upgradeManager.display();
       return;
     }
     
@@ -54,8 +61,10 @@ class GamePlay{
     player.display();
     
     for (Enemy e : enemies){ //<>//
-      e.update(player.getLoc().x, player.getLoc().y); //<>//
-      e.display(); //<>//
+      e.update(player.getLoc().x, player.getLoc().y, enemyImgs); // display called from within update //<>//
+      if (e.isWithinRange(player.getLoc().x, player.getLoc().y, 1600)){
+        e.display(enemyImgs); 
+    } //<>//
     }
 
     popMatrix();
@@ -71,8 +80,8 @@ class GamePlay{
     
     drawOverlay();
     
-    text("num bullets: " + projectiles.size(), 800, 800);
-    
+    // text("num bullets: " + projectiles.size(), 800, 800);
+        
   }
   
   public void keyPressed(char key){
@@ -91,8 +100,26 @@ class GamePlay{
     return gameStatus;
   }
   
+  public int getKills(){
+    return kills;
+  }
+  
+  public int getLevel(){
+    return level;
+  }
+  
   public void setEffectsVol(float effectsVol){
     this.effectsVol = effectsVol/100.0;
+  }
+  
+  public void setUpgradeScreenOff(){
+    upgradeManager.upgrade();
+    upgradeScreen = false; 
+    player.startImmunity();// give player some immunity coming out of upgrade screen
+  }
+  
+  public void setSelected(int selected){
+    upgradeManager.setSelected(selected);
   }
   
   
@@ -118,7 +145,7 @@ class GamePlay{
     
     // left corner
     text("[ESC]", 50, 50);
-    text("HEALTH: " + player.health, 50, 80);
+    text("HEALTH: " + int(player.health), 50, 80);
     
     // right corner
     text("Kills: " + kills, width - 150, 50);
@@ -129,13 +156,25 @@ class GamePlay{
   }
   
   private void checkLevel(){
-    // math with multiplier and kills
-    
+    float score = (log10((kills * multiplier) / 5)) / (log10(1.5));
+    if (score >= 0){
+      score = ceil(score) + 2;
+      if (score > level){
+        level = int(score);
+        //maxEnemyCount = 20 * max(level, 10);
+        upgradeScreen = true;
+        
+      }
+    }
+  }
+  
+  private float log10(float x){
+    return (log(x) / log(10));
   }
   
   
   private void checkCollisions(){
-    Image[] enemyImg = enemies.get(0).getImg();
+    //Image[] enemyImg = enemies.get(0).getImg();
     
     // iterate through all enemies
     for (int i = enemies.size() - 1; i >= 0; i--) {
@@ -146,48 +185,54 @@ class GamePlay{
     
       Enemy enemy = enemies.get(i);
       
-      // CHECK if PLAYER hits ENEMY
-      if (player.getIsAttacking()){
-        if (!player.hasHit && player.attackIntersects(enemy)){ // if player hits their first enemy during this for loop check
-          gameSounds[1].stop();
-          gameSounds[1].play(); // hit sound
-
-          enemy.takeDamage(player.attackDamage);
-          player.hasHit = true; // this variable is set so that Player cant just swing through a group of 10 
-          
-        } else if (!player.hasHit && !player.attackIntersects(enemy)) { // if player misses
-          gameSounds[2].stop();
-          gameSounds[2].play(); // miss sound
+      // if enemy is within a range of the entity with bigger melee range plus a little buffer
+      // helps with memory a bit 
+      if (enemy.isWithinRange(player.getLoc().x, player.getLoc().y, max(player.getMeleeRange(), enemy.getMeleeRange()) * 1.2)){
+      
+        // CHECK if PLAYER hits ENEMY
+        if (player.getIsAttacking()){
+          if (!player.hasHit && player.attackIntersects(enemy)){ // if player hits their first enemy during this for loop check
+            gameSounds[1].stop();
+            gameSounds[1].play(); // hit sound
+  
+            enemy.takeDamage(player.attackDamage);
+            player.hasHit = true; // this variable is set so that Player cant just swing through a group of 10 
+            
+          } else if (!player.hasHit && !player.attackIntersects(enemy)) { // if player misses
+            gameSounds[2].stop();
+            gameSounds[2].play(); // miss sound
+          }
         }
-      }
-      
-      // CHECK if ENEMY hits PLAYER
-      // some iframes to player after being hit. check if player is immune or not. check other stuff too . basically same as above 
-      if (!player.isImmune() && enemy.getIsAttacking() && !enemy.hasHit  && enemy.attackIntersects(player)) { 
-        gameSounds[0].stop();
-        gameSounds[0].play(); // player hurt sound
         
-        player.takeDamage(enemy.attackDamage);
-        player.startImmunity(); // function to begin timing the immunity
-        enemy.hasHit = true;
+        // CHECK if ENEMY hits PLAYER
+        // some iframes to player after being hit. check if player is immune or not. check other stuff too . basically same as above 
+        if (!player.isImmune() && enemy.getIsAttacking() && !enemy.hasHit  && enemy.attackIntersects(player)) { 
+          gameSounds[0].stop();
+          gameSounds[0].play(); // player hurt sound
+          
+          player.takeDamage(enemy.attackDamage);
+          player.startImmunity(); // function to begin timing the immunity
+          enemy.hasHit = true;
+        }
+        
+        
+        // CHECK HEALTH of ENEMY
+        if (enemy.health <= 0){ 
+          enemies.remove(i);
+          kills += 1;
+          checkLevel();
+        }
+        
+        // CHECK HEALTH of PLAYER
+        if (player.health <= 0){
+          println(" PLAYER HAS " + player.health + " LIVES ");
+          gameStatus = 0; // game LOST
+          break;
+        }
+        
       }
-      
-      
-      // CHECK HEALTH of ENEMY
-      if (enemy.health <= 0){ 
-        enemies.remove(i);
-        kills += 1;
-      }
-      
-      // CHECK HEALTH of PLAYER
-      if (player.health <= 0){
-        println(" PLAYER HAS " + player.health + " LIVES ");
-        gameStatus = 0; // game LOST
-        break;
-      }
-      
+      spawnEnemies(); // spawn enemies to replace ones that have died
     }
-    spawnEnemies(enemyImg); // spawn enemies to replace ones that have died
   }
   
   
@@ -227,6 +272,40 @@ class GamePlay{
   }
   
   
+    private void spawnEnemies(){
+    /*  - spawn enemies a little outside the game borders. randomize distance from border and which side (top, bottom, left, right)
+        - there is a max number of enemies able to be present at a time
+    */
+    
+    for (int i = enemies.size(); i < maxEnemyCount; i++){
+      int spawnBuffer = int(random(200));
+      int spawnSide = int(random(4));
+      float spawnX, spawnY;
+    
+      switch (spawnSide){
+        case 0: // top
+          spawnX = random(width * 3);
+          spawnY = -spawnBuffer;
+          break;
+       case 1:  // right
+         spawnX = (width * 3) + spawnBuffer;
+         spawnY = random(height * 3);
+         break;
+       case 2:  // bottom
+         spawnX = random(width * 3);
+         spawnY = (3 * height) + spawnBuffer;
+         break;
+       default:  // left
+         spawnX = (width * 3) - spawnBuffer;
+         spawnY = random(height * 3);
+         break;
+      }
+      // Enemy(float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach, float imgWidth, float imgHeight)
+      enemies.add(new Enemy(spawnX, spawnY, 1, 1, 100, 0.7, 10, enemyImgs[0].getWidth(), enemyImgs[0].getHeight()));
+    }
+  }
+  
+  
   
   // ########################## INITIALIZE ########################## //
   
@@ -247,6 +326,8 @@ class GamePlay{
     int[] enemyNums = { 2, 2, 2, 2, 1, 1, 1, 1 };
     Image[] enemyImgArr = loadEntityImages(antString, enemyNums, 3);
     
+    enemyImgs = loadEntityImages(antString, enemyNums, 3);
+    
     
     println("player width: "+ playerImgArr[0].getWidth());
     println("player height: "+ playerImgArr[0].getHeight());
@@ -262,7 +343,7 @@ class GamePlay{
       
     }
 
-    spawnEnemies(enemyImgArr);
+    spawnEnemies();
     
     camera = new Camera(width/2, height/2);
   }

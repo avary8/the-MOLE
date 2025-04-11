@@ -14,9 +14,10 @@
     [x] in game pause (settings)
     
     
-    [] upgrades
+    [x] upgrades functionality
+      [] implement and write out upgrades
     
-    [] implement levels
+    [x] implement levels
       [] adjust number of enemies based on level
     
     
@@ -54,13 +55,16 @@ import processing.sound.*; // import Sound library
 // using Control P5 for buttons + sliders to keep menu input simpler 
   // mostly used for drawing transparent boxes with on-hover effects. also simplifies button clicking
 ControlP5 cp5;
+ControlP5 upgradeCp5;
+ControlFont cfont;
+
+PFont font;
 
 SoundFile music;
 SoundFile[] gameSounds;
 
-PFont font;
-
 Game game; // Game Class
+GamePlay gamePlay; // GamePlay class
 boolean isOpening;
 Image titleScreen;
 
@@ -170,6 +174,57 @@ void resumeButton(){
 }
 
 
+void box0Button(){
+  println("box 0 BUTTON CLICKED");
+  gamePlay.setSelected(0);
+  upgradeCp5.getController("box0Button")
+    .setColorBackground(color(255, 255, 255, 20));
+    
+  upgradeCp5.getController("box1Button")
+    .setColorBackground(color(0, 0, 0, 1));
+  
+  upgradeCp5.getController("box2Button")
+    .setColorBackground(color(0, 0, 0, 1));
+}
+
+
+void box1Button(){
+  println("box 1 BUTTON CLICKED");
+  gamePlay.setSelected(1);
+  upgradeCp5.getController("box0Button")
+    .setColorBackground(color(0, 0, 0, 1));
+  
+  upgradeCp5.getController("box1Button")
+    .setColorBackground(color(255, 255, 255, 20));
+    
+  upgradeCp5.getController("box2Button")
+    .setColorBackground(color(0, 0, 0, 1));
+  
+}
+
+void box2Button(){
+  println("box 2 BUTTON CLICKED");
+  gamePlay.setSelected(2);
+  upgradeCp5.getController("box0Button")
+    .setColorBackground(color(0, 0, 0, 1));
+
+  upgradeCp5.getController("box1Button")
+    .setColorBackground(color(0, 0, 0, 1));
+  
+  upgradeCp5.getController("box2Button")
+    .setColorBackground(color(255, 255, 255, 20));
+  
+}
+
+void upgradeButton(){
+  println("upgrade BUTTON CLICKED");
+  
+  gamePlay.setUpgradeScreenOff();
+}
+
+
+
+
 // ########################## INITIALIZATIONS ########################## //
 
 private void initialize(){
@@ -177,6 +232,9 @@ private void initialize(){
   titleScreen = new Image("title-anim-", 8, 50);
   
   font = createFont("AGENCYB.TTF", 64);
+  cfont = new ControlFont(font);
+  
+    
   
   music = new SoundFile(this, "music.wav");
   music.amp(0.5);
@@ -188,6 +246,7 @@ private void initialize(){
  
   
   cp5 = new ControlP5(this); 
+  upgradeCp5 = new ControlP5(this);
   game = new Game();
   game.setCurrScreen(0);
 }
