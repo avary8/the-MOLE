@@ -2,10 +2,11 @@
 
 
 
-/* TODO V2
-    [x] implemented good scoping
+/* V2 Progress
+    [x] good scoping
+    [x] reduce unneccessary checks, draws, etc
     
-    [x] added GamePlayer class to handle variables when playing the game
+    [x] added GamePlay class to handle variables when playing the game
     [x] connect current gameplay with menu screens
     [x] complete collision check with hitboxes
     [x] add sfx 
@@ -18,9 +19,10 @@
       [] implement and write out upgrades
     
     [x] implement levels
-      [] adjust number of enemies based on level
+      [x] adjust number of enemies based on level
+      
     
-    
+
     -- boss
 
 WEIRD BUGS
@@ -33,18 +35,14 @@ WEIRD BUGS
 
 /* ---------------------------------------- NOTES V2----------------------------------------
 
-- most things implemented. still need to implement: upgrades, levels, bosses
+- basically everything except actual upgrades and bosses (upgrade system skeleton is in place though)
 
-- still need to write most comments too... that's more of a polishing thing I do at the end since things may change
+- ended up modifying scope of some stuff
+- Enemies will no longer hold an Image[] , instead will just save in the GamePlay class to help with memory
+  - not able to make it static to Enemy class 
 
 projectile class is made but not completely working and I may not end up using it anyways
-
-- all art assets + background -- I created in Aseprite
-- Game Music -- I created in garageband
-- Sound Effects -- Downloaded from freesound.org 
 -------------------------------------------------------------------------------------------------------------------------------------------- */
-
-
 
 
 
@@ -67,6 +65,7 @@ Game game; // Game Class
 GamePlay gamePlay; // GamePlay class
 boolean isOpening;
 Image titleScreen;
+
 
 void setup(){
  size(1920, 1080); // defined screen size

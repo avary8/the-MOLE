@@ -9,7 +9,7 @@ class GamePlay{
   private Image[] enemyImgs;
   private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
   
-  private int maxEnemyCount = 100;
+  private int maxEnemyCount = 20;
   
   UpgradeManager upgradeManager;
   private boolean upgradeScreen = false;
@@ -61,10 +61,7 @@ class GamePlay{
     player.display();
     
     for (Enemy e : enemies){ //<>//
-      e.update(player.getLoc().x, player.getLoc().y, enemyImgs); // display called from within update //<>//
-      if (e.isWithinRange(player.getLoc().x, player.getLoc().y, 1600)){
-        e.display(enemyImgs); 
-    } //<>//
+      e.update(player.getLoc().x, player.getLoc().y, enemyImgs); // display called from within update //<>// //<>//
     }
 
     popMatrix();
@@ -161,9 +158,8 @@ class GamePlay{
       score = ceil(score) + 2;
       if (score > level){
         level = int(score);
-        //maxEnemyCount = 20 * max(level, 10);
+        maxEnemyCount = 20 * max(level, 10);
         upgradeScreen = true;
-        
       }
     }
   }
@@ -236,42 +232,6 @@ class GamePlay{
   }
   
   
-  
-  private void spawnEnemies(Image[] imgArr){
-    /*  - spawn enemies a little outside the game borders. randomize distance from border and which side (top, bottom, left, right)
-        - there is a max number of enemies able to be present at a time
-    */
-    
-    for (int i = enemies.size(); i < maxEnemyCount; i++){
-      int spawnBuffer = int(random(200));
-      int spawnSide = int(random(4));
-      float spawnX, spawnY;
-    
-      switch (spawnSide){
-        case 0: // top
-          spawnX = random(width * 3);
-          spawnY = -spawnBuffer;
-          break;
-       case 1:  // right
-         spawnX = (width * 3) + spawnBuffer;
-         spawnY = random(height * 3);
-         break;
-       case 2:  // bottom
-         spawnX = random(width * 3);
-         spawnY = (3 * height) + spawnBuffer;
-         break;
-       default:  // left
-         spawnX = (width * 3) - spawnBuffer;
-         spawnY = random(height * 3);
-         break;
-      }
-      // Enemy(Image[] img, float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach)
-      enemies.add(new Enemy(imgArr, spawnX, spawnY, 1, 1, 100, 0.7, 10));
-    }
-    
-  }
-  
-  
     private void spawnEnemies(){
     /*  - spawn enemies a little outside the game borders. randomize distance from border and which side (top, bottom, left, right)
         - there is a max number of enemies able to be present at a time
@@ -324,15 +284,13 @@ class GamePlay{
     Image[] playerImgArr = loadEntityImages(playerString, playerNums, 3);
     
     int[] enemyNums = { 2, 2, 2, 2, 1, 1, 1, 1 };
-    Image[] enemyImgArr = loadEntityImages(antString, enemyNums, 3);
-    
     enemyImgs = loadEntityImages(antString, enemyNums, 3);
     
     
     println("player width: "+ playerImgArr[0].getWidth());
     println("player height: "+ playerImgArr[0].getHeight());
-    println("enemy width: "+ enemyImgArr[0].getWidth());
-    println("enemy height: "+ enemyImgArr[0].getHeight());
+    println("enemy width: "+ enemyImgs[0].getWidth());
+    println("enemy height: "+ enemyImgs[0].getHeight());
     
     // set difficulty based health
     if (difficulty == 0){
@@ -366,9 +324,6 @@ class GamePlay{
         //imageIndex = i;
         imageArray[i] = new Image(filePrefix + i + "-", numPics[i], frameDelay);
       }
-      
-      //imageArray[i] = new Image(filePrefix + imageIndex + "-", numPics[i], frameDelay); 
-      
     }
     
     
