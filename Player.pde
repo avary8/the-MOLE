@@ -1,6 +1,7 @@
 class Player extends AbstractEntity {
   Player(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     super(img, width/2, height/2, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
+    currImg = 10;
   }
   
   Player(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){

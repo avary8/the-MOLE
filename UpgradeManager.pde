@@ -43,7 +43,7 @@ class UpgradeManager {
     toggleButtons(true);
   }
   
-  private void hideUpgrades(){
+  public void hideUpgrades(){
     upgradeCp5.hide();
     toggleButtons(false);
     

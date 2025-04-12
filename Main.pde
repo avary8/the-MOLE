@@ -74,19 +74,15 @@ void setup(){
 }
 
 void draw(){
-  //if (isOpening){
-  //  titleScreen.display(0, 0);
-  //  if (titleScreen.isFinished()){
-  //    isOpening = false;
-  //  }
-  //} else {
-  //  game.display();
-  //  game.drawGrid();
-  //}
-  
-  isOpening = false;
-  game.display();
-  game.drawGrid();
+  if (isOpening){
+    titleScreen.display(0, 0);
+    if (titleScreen.isFinished()){
+      isOpening = false;
+    }
+  } else {
+    game.display();
+    game.drawGrid();
+  }
 }
 
 
@@ -97,12 +93,12 @@ void keyPressed(){
     key = 0; // so as not to exit processing
     game.handleESC();
   } else {
-    game.keyPressed(key);
+    game.keyPressed(Character.toLowerCase(key)); // if caps lock is on, conver to lower case
   }
 }
 
 void keyReleased(){
-  game.keyReleased(key);
+  game.keyReleased(Character.toLowerCase(key));
 }
 
 void mousePressed(){
@@ -156,6 +152,7 @@ void hardButton(){
 
 void backToMenuButton(){
   println("backToMenu BUTTON CLICKED");
+  gamePlay.hideUpgradeScreen();
   game.setCurrScreen(0);
 }
 

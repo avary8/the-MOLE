@@ -28,6 +28,7 @@ class GamePlay{
   GamePlay(int difficulty){
     this.difficulty = difficulty;
     if (difficulty == 1){
+      println("multiplier = 1.5");
       multiplier = 1.5;
     }
     upgradeManager = new UpgradeManager();
@@ -38,6 +39,7 @@ class GamePlay{
 
 
   public void updateDraw(){
+    background(0);
     if (upgradeScreen){ // if on upgradeScreen, show it and then return (so game is effectively paused)
       pushMatrix();
       imageMode(CENTER);
@@ -48,8 +50,6 @@ class GamePlay{
       upgradeManager.display();
       return;
     }
-    
-    background(0);
     
     camera.update(player.getX(), player.getY());
     camera.applyTransform();
@@ -115,6 +115,11 @@ class GamePlay{
     player.startImmunity();// give player some immunity coming out of upgrade screen
   }
   
+  public void hideUpgradeScreen(){
+    upgradeManager.hideUpgrades();
+    upgradeScreen = false;
+  }
+  
   public void setSelected(int selected){
     upgradeManager.setSelected(selected);
   }
@@ -153,14 +158,10 @@ class GamePlay{
   }
   
   private void checkLevel(){
-    float score = (log10((kills * multiplier) / 5)) / (log10(1.5));
-    if (score >= 0){
-      score = ceil(score) + 2;
-      if (score > level){
-        level = int(score);
-        maxEnemyCount = 20 * max(level, 10);
-        upgradeScreen = true;
-      }
+    if (kills >= (int)(5 * pow(1.5, (level))) / multiplier){
+      level += 1;
+      maxEnemyCount = max(maxEnemyCount + 5, 100); 
+      upgradeScreen = true;
     }
   }
   
@@ -298,9 +299,9 @@ class GamePlay{
     // set difficulty based health
     if (difficulty == 0){
       // Player(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach)
-      player = new Player(playerImgArr, 5, 5, 750, 0.3, 0.5, 50);
+      player = new Player(playerImgArr, 5, 5, 750, 1, 0.5, 50);
     } else {
-      player = new Player(playerImgArr, 5, 2, 750, 0.3, 0.5, 50);
+      player = new Player(playerImgArr, 5, 2, 750, 1, 0.5, 50);
       
     }
 

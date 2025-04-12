@@ -105,6 +105,7 @@ class Game{// commented to skip intro animation for development purposes
     switch (currScreen){
       case -1: // playing the game , to in-game settings
         cp5.hide();
+        upgradeCp5.hide();
         currScreen = 4;
         break;
       case 0: // menu screen , go to quit menu 
