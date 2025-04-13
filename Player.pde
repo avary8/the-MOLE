@@ -15,6 +15,9 @@ class Player extends AbstractEntity {
   private boolean isImmune = false;
   private float immuneStartTime = 0.0;
   private float immuneDuration = 500;
+  
+  private boolean checkShield = false;
+  private int shieldKillStart = 0;
 
 
   // GETTERS , SETTERS, and other public functions
@@ -35,7 +38,44 @@ class Player extends AbstractEntity {
    return isImmune;
   }
   
+  // Functions for Upgrades
+  public float modSpeed(){
+    speed += 1;
+    return speed;
+  }
   
+  public void modAtkCooldown(float change){
+    attackCooldown = attackCooldown * change;
+  }
+  
+  public void modAtkReach (float change){
+    attackReach = attackReach * change;
+  }
+  
+  public void modDmg (float change){
+    attackDamage = attackDamage * change;
+  }
+  
+  public boolean isCheckingShields(){
+    return checkShield; 
+  }
+  
+  public void setCheckShield(){
+    checkShield = true;
+  }
+  
+  public void checkShield(int kills){
+    if (shieldKillStart == -1){
+      shieldKillStart = kills;
+    }
+    if (kills - shieldKillStart == 100){
+      health += 1;
+      checkShield = true;
+      shieldKillStart = -1;
+    }
+  }
+  
+
   public void update(){
     // ensures attack stops when supposed to 
     if (isAttacking && millis () - lastAttackTime > 100){
@@ -58,10 +98,10 @@ class Player extends AbstractEntity {
       loc.y -= speed;
     }
     if (down){
-      loc.y +=speed;
+      loc.y += speed;
     }
     if (left){
-      loc.x -=speed;
+      loc.x -= speed;
     }
     if (right){
       loc.x += speed;

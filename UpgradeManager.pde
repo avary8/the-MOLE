@@ -1,9 +1,29 @@
 class UpgradeManager {
+  // StringList so values can be removable
+  StringList upgradeStrings = new StringList (new String[]{
+    "increase speed by 50% of base speed",
+    "decrease attack cooldown by 5%",
+    "increase attack range by 5%",
+    "increase dmg by 10%",
+    "gain 1 shield (life) after 100 kills (once)",
+    
+    //"every 5 kills, place tnt",
+    //"decrease all enemies speed by 10%"
+  });
+  
+  Integer[] currSelection;
+  private Player player;
+  
   private Button box0, box1, box2, upgradeButton;
   private int selectedUpgrade = -1;
   
-  UpgradeManager(){
+  boolean randomize = true;
+  
+  
+  UpgradeManager(Player player){
     initButtons();
+    currSelection = new Integer[3];
+    this.player = player;
   }
   
   // will need to PAUSE GamePlay and then display the UPGRADE SCREEN
@@ -13,29 +33,37 @@ class UpgradeManager {
   // array to pick random 3, and assign them to the PICK SCREEN 
   
   public void display(){
-   pushMatrix();
-   resetMatrix();
-   strokeWeight(0);
-   fill(0, 0, 0, 100);
-   rectMode(CENTER);
-   rect(width/2, height/2, width - 200, height - 150);
-   
-   drawUpgrades();
-
-   stroke(255);
-   strokeWeight(1);
-   line(150, 307.5, 1770, 307.5);
-   line(150, 515, 1770, 515);
-
-   line(150, 722.5, 1770, 722.5);
-   
-   popMatrix();
+    if (randomize){
+      randomizeUpgradeSelection();
+      setLabels();
+    }
+    pushMatrix();
+    resetMatrix();
+    strokeWeight(0);
+    fill(0, 0, 0, 100);
+    rectMode(CENTER);
+    rect(width/2, height/2, width - 200, height - 150);
+     
+    drawUpgrades();
+  
+    stroke(255);
+    strokeWeight(1);
+    line(150, 307.5, 1770, 307.5);
+    line(150, 515, 1770, 515);
+  
+    line(150, 722.5, 1770, 722.5);
+     
+    popMatrix();
     
   }
   
   
   public void setSelected(int selected){
     this.selectedUpgrade = selected;
+  }
+  
+  public int getSelected(){
+    return selectedUpgrade;
   }
   
   private void drawUpgrades(){
@@ -51,6 +79,7 @@ class UpgradeManager {
     // revert button colors and curr selection
     
     selectedUpgrade = -1;
+    randomize = true;
     
     upgradeCp5.getController("box0Button")
       .setColorBackground(color(0, 0, 0, 1));
@@ -64,54 +93,65 @@ class UpgradeManager {
   }
   
  
-  /* something like this im thinkin
-    void upgrade(Entity entity, SOME_INDICATION_OF_UPGRADE (maybe enum ? or just array)){
-     // maybe also have an array of upgrade numbers or not idk
-      
-      switch(upgrade){
-        case 0:
-          entity.modifySpeed( float );
-          break;
-        case 1:
-          entity.modifyAttackCoolDown( float );
-          break;
-        case 2:
-          entity.modifyAttackDamage( float );
-          break;
-        case 3:
-          entity.modifyAttackReach( float );
-          break;
-        
-        etc
-        
-      }
-      
-    }
-  
-  
-  */
-  
   public void upgrade(){
+    switch(currSelection[selectedUpgrade]){
+      case 0: 
+        if (player.modSpeed() == 10){ // cap speed to 10
+          upgradeStrings.remove(0);
+        }
+        break;
+      case 1: 
+        player.modAtkCooldown(1.05);
+        break;
+      case 2:
+        player.modAtkReach(1.05);
+        break;
+      case 3:
+        player.modDmg(1.10);
+        break;
+      case 4:
+        player.setCheckShield();
+        upgradeStrings.remove(4);
+        break;
+    }
     hideUpgrades();
+  }
+  
+  
+  // picks 3 random upgrades to display
+  private void randomizeUpgradeSelection(){
+    currSelection[0] = (int) random(0, upgradeStrings.size());
+    currSelection[1] = (int) random(0, upgradeStrings.size());
+    currSelection[2] = (int) random(0, upgradeStrings.size());
     
-    // use selectedUpgrade to determine which of the 3... will prob need an array of current 3 unless Button has value i can set 
-    
-    
-    
+    while(currSelection[0] == currSelection[1] || currSelection[0] == currSelection[2] || currSelection[1] == currSelection[2]){
+      if (currSelection[0] == currSelection[1] || currSelection[0] == currSelection[2]){
+       currSelection[0] = (int) random(0, upgradeStrings.size());
+      } else {
+        currSelection[1] = (int) random(0, upgradeStrings.size());
+      }
+    }
+    randomize = false;
+  }
+  
+  private void setLabels(){
+    box0.setLabel(upgradeStrings.get(currSelection[0]));
+    box1.setLabel(upgradeStrings.get(currSelection[1]));
+    box2.setLabel(upgradeStrings.get(currSelection[2]));
   }
   
   
   private void toggleButtons(boolean toggle){
     if (toggle){
       box0.show();
-      //box1.show();
-      //box2.show();
-      //upgradeButton.show();
+      box1.show();
+      box2.show();
+      upgradeButton.show();
     } else {
       box0.hide();
-      //box1.hide();
-      //box2.hide();
-      //upgradeButton.hide();
+      box1.hide();
+      box2.hide();
+      upgradeButton.hide();
     }
   }
   

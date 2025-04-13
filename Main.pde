@@ -2,44 +2,24 @@
 
 
 
-/* V2 Progress
-    [x] good scoping
-    [x] reduce unneccessary checks, draws, etc
-    
-    [x] added GamePlay class to handle variables when playing the game
-    [x] connect v1 gameplay with menu screens
-    [x] complete collision check with hitboxes
-    [x] add sfx 
-    [x] add overlay on GamePlay
-    [x] add death / win screen 
-    [x] in game pause (settings)
-    
-    
+/* V3 Progress
     [x] upgrades functionality
-      [] implement and write out upgrades
-    
-    [x] implement levels
-      [x] adjust number of enemies based on level
-      
-    
+      [x] implement and write out upgrades
 
-    -- boss
+    [] boss
 
 WEIRD BUGS
    [RESOLVED] sfx volume does not change. not sure why not. ive tried everything
          wasnt sure if i'd ever figure it out. put .amp() inside the for loop and then .stop .play right after each other
 
-
+   [RESOLVED] modifying speed like (speed * change) makes everything go in slo-mo
+         speed doesn't like to be decimal... so just going to increase by whole number
 */
 
 
-/* ---------------------------------------- NOTES V2----------------------------------------
+/* ---------------------------------------- NOTES V3----------------------------------------
 
-- basically everything except actual upgrades and bosses (upgrade system skeleton is in place though)
 
-- ended up modifying scope of some stuff
-- Enemies will no longer hold an Image[] , instead will just save in the GamePlay class to help with memory
-  - not able to make it static to Enemy class 
 
 projectile class is made but not completely working and I may not end up using it anyways
 -------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -74,15 +54,20 @@ void setup(){
 }
 
 void draw(){
-  if (isOpening){
-    titleScreen.display(0, 0);
-    if (titleScreen.isFinished()){
-      isOpening = false;
-    }
-  } else {
-    game.display();
-    game.drawGrid();
-  }
+  //if (isOpening){
+  //  titleScreen.display(0, 0);
+  //  if (titleScreen.isFinished()){
+  //    isOpening = false;
+  //  }
+  //} else {
+  //  game.display();
+  //  game.drawGrid();
+  //}
+  
+  isOpening = true;
+  game.display();
+  game.drawGrid();
+  
 }
 
 
@@ -211,8 +196,9 @@ void box2Button(){
 
 void upgradeButton(){
   println("upgrade BUTTON CLICKED");
-  
-  gamePlay.setUpgradeScreenOff();
+  if (gamePlay.getSelected() != -1){
+    gamePlay.setUpgradeScreenOff();
+  }
 }
 
 

@@ -5,10 +5,12 @@ class Camera {
     loc = new PVector(x, y);
   }
   
+  // center camera at player (player is kept at center of screen during gameplay except when by edges)
   public void update(float x, float y){
     loc.set(x - width / 2, y - height / 2);
   }
   
+  // applies translation but does not allow camera to go out of game bounds (like if player goes to a corner. the camera will not keep player centered in this case)
   public void applyTransform() {
     float cameraX = constrain(loc.x, 0, 3 * width - width);
     float cameraY = constrain(loc.y, 0, 3 * height - height);

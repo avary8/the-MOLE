@@ -31,10 +31,11 @@ class GamePlay{
       println("multiplier = 1.5");
       multiplier = 1.5;
     }
-    upgradeManager = new UpgradeManager();
-    
+
     loadGameBackgrounds();
     loadClasses();
+    
+    upgradeManager = new UpgradeManager(player);
   }
 
 
@@ -73,7 +74,10 @@ class GamePlay{
       p.display();
     }
     
-    checkCollisions();  
+    checkCollisions();
+    if (player.isCheckingShields()){
+      player.checkShield(kills);
+    }
     
     drawOverlay();
     
@@ -122,6 +126,10 @@ class GamePlay{
   
   public void setSelected(int selected){
     upgradeManager.setSelected(selected);
+  }
+  
+  public int getSelected(){
+    return upgradeManager.getSelected();
   }
   
   
@@ -272,7 +280,7 @@ class GamePlay{
   
   
   // ########################## INITIALIZE ########################## //
-  
+  // Load game backgrounds into the Map class. background is 3x3 grid of 1920x1080 images
   private void loadGameBackgrounds(){
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -282,8 +290,10 @@ class GamePlay{
     }
   }
   
+  
+  // LOAD ENTITY IMAGE CLASS ARRAYS (load animations for Entities)
   void loadClasses(){
-    // LOAD ENTITY IMAGE CLASS ARRAYS (load animations for Entities)
+    
     int[] playerNums = { 6, 4, 6, 4, 6, 5, 5, 5, 1, 1, 1, 1 };
     Image[] playerImgArr = loadEntityImages(playerString, playerNums, 3);
     
@@ -299,9 +309,9 @@ class GamePlay{
     // set difficulty based health
     if (difficulty == 0){
       // Player(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach)
-      player = new Player(playerImgArr, 5, 5, 750, 1, 0.5, 50);
+      player = new Player(playerImgArr, 2, 5, 750, 1, 0.5, 50);
     } else {
-      player = new Player(playerImgArr, 5, 2, 750, 1, 0.5, 50);
+      player = new Player(playerImgArr, 2, 2, 750, 1, 0.5, 50);
       
     }
 
