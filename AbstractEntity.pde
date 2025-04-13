@@ -78,6 +78,10 @@ abstract class AbstractEntity {
     return isAttacking;
   }
   
+  public PVector getLoc(){
+    return loc;
+  }
+  
   public float getX(){
     return loc.x;
   }
@@ -126,7 +130,7 @@ abstract class AbstractEntity {
     float direction = (attackDirX * entityToX) + (attackDirY * entityToY);
 
     
-    return (direction > 0 && dist(loc.x, loc.y, entity.loc.x, entity.loc.y) < hitBoxWidth + attackReach );
+    return (direction > 0 && dist(loc.x, loc.y, entity.loc.x, entity.loc.y) < hitBoxWidth/2 + attackReach + entity.hitBoxWidth/2);
   }
   
   // used for debugging
@@ -142,7 +146,7 @@ abstract class AbstractEntity {
     
     stroke(255, 0, 0);
 
-    // melee reach -- when entity attacks "something", it the attack is inside the "something's" hitbox, "something" takes damage
+    // melee reach -- when entity attacks "something", if the attack is inside the "something's" hitbox, "something" takes damage
     line(loc.x - (hitBoxWidth/2) - attackReach, loc.y, loc.x + (hitBoxWidth/2) + attackReach, loc.y);
     
     fill(0, 0, 0, 0);

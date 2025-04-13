@@ -1,29 +1,56 @@
 class Projectile extends PVector {
-  
-  // viewingDir is just a bit broken atm
-  
-  // coming from 0, 0 right now
-  // need to persist a bit since the player could move and see them again.
-  // if doing light thing, maybe could add a "visible" bool and updates all but only prints one that are visible
-  
-  // also assign who the bullet belongs to . flag - enemy vs character bullets. OR 2 different arrays
-
   private PVector loc = new PVector();
   private PVector vel = new PVector();
+  private int lifeSpan = 300;
+  private float damage = 1;
+  private float radius = 5;
   
-  Projectile(PVector loc, PVector vel){
-    this.loc = loc;
-    this.vel = vel;
+  Projectile(PVector loc, PVector vel, float radius){
+    this.loc = loc.copy();
+    this.vel = vel.copy();
+    this.radius = radius;
   }
   
   public void update(){
-    add(vel);
+    loc.add(vel);
+    lifeSpan -= 1;
   }
   
   
   public void display(){
-    fill(0, 0, 255);
-    ellipse(x, y, 20, 20);
+    fill(0, 255, 0);
+    noStroke();
+    ellipse(loc.x, loc.y, radius, radius);
   }
+  
+  
+  public boolean isExpired(){
+    return lifeSpan <= 0;
+  }
+  
+  public float getX(){
+    return loc.x;
+  }
+  
+  public float getY(){
+    return loc.y;
+  }
+  
+  public float getRadius(){
+    return radius;
+  }
+  
+  public float getDamage(){
+    return damage;
+  }
+  
+  
+  // check projectile collisions
+  public boolean checkCollision(AbstractEntity entity){
+    float distance = dist(loc, entity.getLoc());
+    return distance < (radius + (entity.hitBoxWidth));
+  }
+  
+  
   
 }

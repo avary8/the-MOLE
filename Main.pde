@@ -5,8 +5,9 @@
 /* V3 Progress
     [x] upgrades functionality
       [x] implement and write out upgrades
+    [x] boss
 
-    [] boss
+    [] write in comments
 
 WEIRD BUGS
    [RESOLVED] sfx volume does not change. not sure why not. ive tried everything
@@ -17,12 +18,16 @@ WEIRD BUGS
 */
 
 
-/* ---------------------------------------- NOTES V3----------------------------------------
 
 
 
-projectile class is made but not completely working and I may not end up using it anyways
+
+/* ---------------------------------------- NOTES----------------------------------------
+
+
+
 -------------------------------------------------------------------------------------------------------------------------------------------- */
+
 
 
 
@@ -38,7 +43,7 @@ ControlFont cfont;
 
 PFont font;
 
-SoundFile music;
+SoundFile music, mainMusic, bossMusic;
 SoundFile[] gameSounds;
 
 Game game; // Game Class
@@ -146,7 +151,7 @@ void resumeButton(){
   if (game.getCurrScreen() == 4){
     game.drawGamePlay();
   } else {
-    game.startGame(0);
+    game.startGame(gamePlay.getDifficulty());
   }
   game.setCurrScreen(-1);
 }
@@ -213,15 +218,18 @@ private void initialize(){
   font = createFont("AGENCYB.TTF", 64);
   cfont = new ControlFont(font);
   
-    
+  mainMusic = new SoundFile(this, "music.wav");
+  bossMusic = new SoundFile(this, "boss-music.wav");
+  bossMusic.amp(0.5);
+  mainMusic.amp(0.5);
+  music = mainMusic;
+
   
-  music = new SoundFile(this, "music.wav");
-  music.amp(0.5);
-  
-  gameSounds = new SoundFile[3];
+  gameSounds = new SoundFile[4];
   gameSounds[0] = new SoundFile(this, "hurt.wav");
   gameSounds[1] = new SoundFile(this, "slash_hit.wav");
   gameSounds[2] = new SoundFile(this, "slash_miss.wav");
+  gameSounds[3] = new SoundFile(this, "boss-proj-hit.wav");
  
   
   cp5 = new ControlP5(this); 

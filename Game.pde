@@ -50,9 +50,15 @@ class Game{// commented to skip intro animation for development purposes
             gamePlay.updateDraw();
             break;
           case 0: // game LOST
+            music.stop();
+            music = mainMusic;
+            music.loop();
             currScreen = 5;
             break;
           case 1: // game WON
+            music.stop();
+            music = mainMusic;
+            music.loop();
             currScreen = 6;
             break;
         }

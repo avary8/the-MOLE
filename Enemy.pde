@@ -4,7 +4,6 @@ class Enemy extends AbstractEntity {
     super(x, y, speed, health, attackCooldown, 1, hitBoxAdj, attackReach, imgWidth, imgHeight);
   }
   
-  // likely will be deleted . old init way
   Enemy(Image[] img, float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach){
     super(img, x, y, speed, health, attackCooldown, 1, hitBoxAdj, attackReach);
   }

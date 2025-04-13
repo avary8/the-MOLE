@@ -6,6 +6,7 @@ class GamePlay{
   private Camera camera;
   private Player player;
   private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+  private Boss boss;
   private Image[] enemyImgs;
   private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
   
@@ -61,18 +62,16 @@ class GamePlay{
     player.update();
     player.display();
     
+    
     for (Enemy e : enemies){ //<>//
-      e.update(player.getX(), player.getY(), enemyImgs); // display called from within update //<>// //<>//
+      e.update(player.getX(), player.getY(), enemyImgs); // display called from within update //<>//
     }
-
+    
+    if (level == 10){
+      boss.update(player.getX(), player.getY());
+      checkBossCollisions();
+    }
     popMatrix();
-    
-    text(dist(player.getX(), player.getY(), player.look.x, player.look.y), 300, 300);
-    
-    for (Projectile p: projectiles){
-      p.update();
-      p.display();
-    }
     
     checkCollisions();
     if (player.isCheckingShields()){
@@ -80,10 +79,11 @@ class GamePlay{
     }
     
     drawOverlay();
-    
-    // text("num bullets: " + projectiles.size(), 800, 800);
-        
   }
+  
+  
+  
+  // Player controls functions
   
   public void keyPressed(char key){
     player.keyPressed(key);
@@ -97,8 +97,13 @@ class GamePlay{
     player.mousePressed();
   }
   
+  // ##########################  GETTERS , SETTERS , Basic functions ########################## //
   public int getGameStatus(){
     return gameStatus;
+  }
+  
+  public int getDifficulty(){
+    return difficulty;
   }
   
   public int getKills(){
@@ -113,12 +118,19 @@ class GamePlay{
     this.effectsVol = effectsVol/100.0;
   }
   
+  // After player confirms upgrade, this gets called
   public void setUpgradeScreenOff(){
     upgradeManager.upgrade();
     upgradeScreen = false; 
     player.startImmunity();// give player some immunity coming out of upgrade screen
+    if (level == 10){
+      music.stop();
+      music = bossMusic;
+      music.loop();
+    }
   }
   
+  // hides buttons .. used if in-game settings are pulled up during upgrade selection
   public void hideUpgradeScreen(){
     upgradeManager.hideUpgrades();
     upgradeScreen = false;
@@ -132,7 +144,9 @@ class GamePlay{
     return upgradeManager.getSelected();
   }
   
-  
+  // ##########################  Game Core Mechanic Functions ########################## //
+
+  // draw the backgrounds according to current position
   private void drawBackgrounds() {
     pushMatrix();
     imageMode(CORNER);
@@ -147,6 +161,7 @@ class GamePlay{
     popMatrix();
   }
   
+  // draws in-game text overlays
   private void drawOverlay(){
     pushMatrix();
     resetMatrix();
@@ -160,24 +175,21 @@ class GamePlay{
     // right corner
     text("Kills: " + kills, width - 150, 50);
     text("Level: " + level, width - 150, 80);
-    
-     
+
     popMatrix();
   }
   
+  
+  // check which level the player is on
   private void checkLevel(){
-    if (kills >= (int)(5 * pow(1.5, (level))) / multiplier){
+    if (level < 10 && kills >= (int)(5 * pow(1.5, (level))) / multiplier){
       level += 1;
       maxEnemyCount = max(maxEnemyCount + 5, 100); 
       upgradeScreen = true;
     }
   }
-  
-  private float log10(float x){
-    return (log(x) / log(10));
-  }
-  
-  
+
+  // checks collisions of enemies and player
   private void checkCollisions(){
     //Image[] enemyImg = enemies.get(0).getImg();
     
@@ -232,7 +244,7 @@ class GamePlay{
         if (player.health <= 0){
           println(" PLAYER HAS " + player.health + " LIVES ");
           gameStatus = 0; // game LOST
-          break;
+          return;
         }
         
       } else if (player.getIsAttacking() && !player.hasHit && !player.attackIntersects(enemy)){
@@ -242,6 +254,94 @@ class GamePlay{
       spawnEnemies(); // spawn enemies to replace ones that have died
     }
   }
+  
+  // similar to above, but for the Boss
+  private void checkBossCollisions(){
+    // set volume for each sfx
+    gameSounds[0].amp(effectsVol);
+    gameSounds[1].amp(effectsVol);
+    gameSounds[2].amp(effectsVol);  
+    gameSounds[3].amp(effectsVol);
+      
+      
+    // Check if any projectiles hit Player
+       
+    for (int i = 0; i < boss.getProjectiles().size(); i++){
+      Projectile proj = boss.getProjectiles().get(i);
+      if (boss.isWithinRange(proj.getX(), proj.getY(), player.getX(), player.getY(), proj.getRadius() * 2)){
+        if (proj.checkCollision(player)){
+          
+          boss.getProjectiles().remove(i);
+          
+          gameSounds[3].stop();
+          gameSounds[3].play(); // projectile hit sound
+          player.takeDamage(proj.getDamage());
+          player.startImmunity();
+          
+          // CHECK HEALTH of PLAYER
+          if (player.health <= 0){
+            println(" PLAYER HAS " + player.health + " LIVES ");
+            gameStatus = 0; // game LOST
+            return;
+          }
+        }
+       }
+     }
+     
+
+      
+      
+      
+      // if BOSS is within a range of the entity with bigger melee range plus a little buffer
+      // helps with memory a bit 
+      if (boss.isWithinRange(player.getX(), player.getY(), max(player.getMeleeRange(), boss.getMeleeRange()) * 1.2)){
+      
+        // CHECK if PLAYER hits BOSS
+        if (player.getIsAttacking()){
+          if (!player.hasHit && player.attackIntersects(boss)){ 
+            gameSounds[1].stop();
+            gameSounds[1].play(); // hit sound
+  
+            boss.takeDamage(player.attackDamage);
+            player.hasHit = true; // this variable is set so that Player cant just swing through a group of 10 
+          } else if (!player.hasHit && !player.attackIntersects(boss)) { // if player misses
+            gameSounds[2].stop();
+            gameSounds[2].play(); // miss sound
+          }
+        }
+        
+        // CHECK HEALTH of BOSS
+        if (boss.health <= 0){ 
+          gameStatus = 1; // game WON
+          return;
+        }
+      
+              
+        // CHECK if BOSS hits PLAYER
+        // some iframes to player after being hit. check if player is immune or not. check other stuff too . basically same as above 
+        if (!player.isImmune() && boss.getIsAttacking() && !boss.hasHit  && boss.attackIntersects(player)) { 
+          gameSounds[0].stop();
+          gameSounds[0].play(); // player hurt sound
+          
+          player.takeDamage(boss.attackDamage);
+          player.startImmunity(); // function to begin timing the immunity
+          boss.hasHit = true;
+        }
+        
+        
+        // CHECK HEALTH of PLAYER
+        if (player.health <= 0){
+          println(" PLAYER HAS " + player.health + " LIVES ");
+          gameStatus = 0; // game LOST
+          return;
+        }
+        
+      } else if (player.getIsAttacking() && !player.hasHit && !player.attackIntersects(boss)){
+        gameSounds[2].stop();
+        gameSounds[2].play(); // miss sound
+      }
+ } 
+ 
   
   
     private void spawnEnemies(){
@@ -316,6 +416,12 @@ class GamePlay{
     }
 
     spawnEnemies();
+    
+    
+    Image[] bossImgArray = new Image[1];
+    bossImgArray[0] = new Image("boss-", 1, 3);
+    // Boss(Image[] img, float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach)
+    boss = new Boss(bossImgArray, 0, 0, 1, 50, 200, 0.5, 20);
     
     camera = new Camera(width/2, height/2);
   }
