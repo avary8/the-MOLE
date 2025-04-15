@@ -8,6 +8,7 @@ class Image {
   int frameDelay = 3;
   int frameCounter = 0;
   
+  // constructor : load images
   Image(String imagePrefix, int count){
     imgCount = count;
     images = new PImage[imgCount];
@@ -18,6 +19,7 @@ class Image {
     }
   }
   
+  // another constructor with ability to set frameDelay
   Image(String imagePrefix, int count, int frameDelay){
     this.frameDelay = frameDelay;
     
@@ -30,6 +32,8 @@ class Image {
     }
   }
   
+  
+  // display the current image in the sequence of images
   public void display(float xpos, float ypos) {
     frameCounter++;
     if (frameCounter >= frameDelay){
@@ -39,6 +43,8 @@ class Image {
     image(images[frame], xpos, ypos, images[frame].width, images[frame].height);
   }
   
+  // ##########################  GETTERS , SETTERS , Basic functions ########################## //
+  // is animation finished 
   public boolean isFinished(){
     return (frame >= images.length-1) && (frameCounter == frameDelay - 1); 
   }

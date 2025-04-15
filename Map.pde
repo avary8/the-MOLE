@@ -1,3 +1,4 @@
+// holds the images for 3x3 game grid and their positions
 class Map {
   private PImage img;
   private PVector position;

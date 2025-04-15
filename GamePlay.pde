@@ -1,4 +1,5 @@
-class GamePlay{
+// handles actual Gameplay logic
+class GamePlay {
   private String playerString = "mole-";
   private String antString = "ant-";
   
@@ -16,7 +17,6 @@ class GamePlay{
   private boolean upgradeScreen = false;
   
   private int gameStatus = -1; // -1 = playing , 0 = lost , 1 = won
-  
 
   private int difficulty = 0;
   private int level = 1;
@@ -25,21 +25,20 @@ class GamePlay{
   
   private float effectsVol = 1.0;
   
-  
+  // constructor: set difficulty, load everything
   GamePlay(int difficulty){
     this.difficulty = difficulty;
     if (difficulty == 1){
       println("multiplier = 1.5");
       multiplier = 1.5;
     }
-
     loadGameBackgrounds();
     loadClasses();
     
     upgradeManager = new UpgradeManager(player);
   }
 
-
+  // update and draw everything
   public void updateDraw(){
     background(0);
     if (upgradeScreen){ // if on upgradeScreen, show it and then return (so game is effectively paused)
@@ -62,29 +61,27 @@ class GamePlay{
     player.update();
     player.display();
     
-    
     for (Enemy e : enemies){ //<>//
-      e.update(player.getX(), player.getY(), enemyImgs); // display called from within update //<>//
+      e.update(player.getX(), player.getY(), enemyImgs); // display is called from within update for enemy //<>//
     }
     
     if (level == 10){
-      boss.update(player.getX(), player.getY());
+      boss.update(player.getX(), player.getY()); // display is called from within update for boss
       checkBossCollisions();
     }
     popMatrix();
     
     checkCollisions();
-    if (player.isCheckingShields()){
+    
+    // logic for an upgrade player gets after killing 100 enemies
+    if (player.isCheckingShields()){ 
       player.checkShield(kills);
     }
     
     drawOverlay();
   }
   
-  
-  
-  // Player controls functions
-  
+  // ##########################  Input Logic forwarded to Player ########################## //
   public void keyPressed(char key){
     player.keyPressed(key);
   }
@@ -126,6 +123,7 @@ class GamePlay{
     if (level == 10){
       music.stop();
       music = bossMusic;
+      music.amp(musicVol / 100.0);
       music.loop();
     }
   }
@@ -146,7 +144,7 @@ class GamePlay{
   
   // ##########################  Game Core Mechanic Functions ########################## //
 
-  // draw the backgrounds according to current position
+  // draw the backgrounds according to current position .. as in where the player is with respect to the whole game 3x3 grid
   private void drawBackgrounds() {
     pushMatrix();
     imageMode(CORNER);
@@ -191,8 +189,6 @@ class GamePlay{
 
   // checks collisions of enemies and player
   private void checkCollisions(){
-    //Image[] enemyImg = enemies.get(0).getImg();
-    
     // iterate through all enemies
     for (int i = enemies.size() - 1; i >= 0; i--) {
       // set volume for each sfx
@@ -202,8 +198,8 @@ class GamePlay{
     
       Enemy enemy = enemies.get(i);
       
-      // if enemy is within a range of the entity with bigger melee range plus a little buffer
-      // helps with memory a bit 
+      // only check if enemy is within a range of the entity with bigger melee range plus a little buffer
+      // helps with memory a bit
       if (enemy.isWithinRange(player.getX(), player.getY(), max(player.getMeleeRange(), enemy.getMeleeRange()) * 1.2)){
       
         // CHECK if PLAYER hits ENEMY
@@ -222,7 +218,7 @@ class GamePlay{
         }
         
         // CHECK if ENEMY hits PLAYER
-        // some iframes to player after being hit. check if player is immune or not. check other stuff too . basically same as above 
+        // some immunity to player after being hit. check if player is immune or not. check other stuff too . basically same as above 
         if (!player.isImmune() && enemy.getIsAttacking() && !enemy.hasHit  && enemy.attackIntersects(player)) { 
           gameSounds[0].stop();
           gameSounds[0].play(); // player hurt sound
@@ -234,7 +230,7 @@ class GamePlay{
         
         
         // CHECK HEALTH of ENEMY
-        if (enemy.health <= 0){ 
+        if (enemy.health <= 0){
           enemies.remove(i);
           kills += 1;
           checkLevel();
@@ -287,10 +283,6 @@ class GamePlay{
         }
        }
      }
-     
-
-      
-      
       
       // if BOSS is within a range of the entity with bigger melee range plus a little buffer
       // helps with memory a bit 
@@ -315,8 +307,7 @@ class GamePlay{
           gameStatus = 1; // game WON
           return;
         }
-      
-              
+    
         // CHECK if BOSS hits PLAYER
         // some iframes to player after being hit. check if player is immune or not. check other stuff too . basically same as above 
         if (!player.isImmune() && boss.getIsAttacking() && !boss.hasHit  && boss.attackIntersects(player)) { 
@@ -328,14 +319,17 @@ class GamePlay{
           boss.hasHit = true;
         }
         
-        
         // CHECK HEALTH of PLAYER
         if (player.health <= 0){
           println(" PLAYER HAS " + player.health + " LIVES ");
+          music.stop();
+          music = mainMusic;
+          music.amp(musicVol / 100.0);
+          music.loop();
           gameStatus = 0; // game LOST
           return;
         }
-        
+
       } else if (player.getIsAttacking() && !player.hasHit && !player.attackIntersects(boss)){
         gameSounds[2].stop();
         gameSounds[2].play(); // miss sound
@@ -343,12 +337,10 @@ class GamePlay{
  } 
  
   
-  
-    private void spawnEnemies(){
-    /*  - spawn enemies a little outside the game borders. randomize distance from border and which side (top, bottom, left, right)
+  /*  - spawn enemies a little outside the game borders. randomize distance from border and which side (top, bottom, left, right)
         - there is a max number of enemies able to be present at a time
-    */
-    
+  */
+    private void spawnEnemies(){
     for (int i = enemies.size(); i < maxEnemyCount; i++){
       int spawnBuffer = int(random(200));
       int spawnSide = int(random(4));
@@ -380,6 +372,7 @@ class GamePlay{
   
   
   // ########################## INITIALIZE ########################## //
+  
   // Load game backgrounds into the Map class. background is 3x3 grid of 1920x1080 images
   private void loadGameBackgrounds(){
     for (int i = 0; i < 3; i++) {
@@ -406,13 +399,12 @@ class GamePlay{
     println("enemy width: "+ enemyImgs[0].getWidth());
     println("enemy height: "+ enemyImgs[0].getHeight());
     
-    // set difficulty based health
+    // set difficulty-based health
     if (difficulty == 0){
       // Player(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach)
-      player = new Player(playerImgArr, 2, 5, 750, 1, 0.5, 50);
+      player = new Player(playerImgArr, 2, 5, 750, 0.4, 0.5, 50);
     } else {
-      player = new Player(playerImgArr, 2, 2, 750, 1, 0.5, 50);
-      
+      player = new Player(playerImgArr, 2, 2, 750, 0.4, 0.5, 50);
     }
 
     spawnEnemies();
@@ -422,7 +414,7 @@ class GamePlay{
     bossImgArray[0] = new Image("boss-", 1, 3);
     // Boss(Image[] img, float x, float y, float speed, float health, float attackCooldown, float hitBoxAdj, float attackReach)
     boss = new Boss(bossImgArray, 0, 0, 1, 50, 200, 0.5, 20);
-    
+
     camera = new Camera(width/2, height/2);
   }
   
@@ -489,14 +481,6 @@ class GamePlay{
     //playerImgArr[9] = new Image(playerString +"1-", 1);
     //playerImgArr[10] = new Image(playerString +"2-", 1);
     //playerImgArr[11] = new Image(playerString +"3-", 1);
-    
-    
-    // Ant Enemy Images
-    //Image[] enemyImgArr = new Image[2];
-    //// attack
-    //enemyImgArr[0] = new Image(antString, 2, 10);
-    //// still
-    //enemyImgArr[1] = new Image(antString, 1);
   }
   
  //<>//

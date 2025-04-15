@@ -1,17 +1,10 @@
+// Player class 
 class Player extends AbstractEntity {
   Player(Image[] img, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     super(img, width/2, height/2, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
     currImg = 10;
   }
-  
-  Player(Image[] img,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
-    super(img, width/2, height/2, bulletFile, speed, health, attackCooldown, attackDamage, hitBoxAdj, attackReach);
-  }
-  
-  /*
-      Variables Specific to Player class
-  
-  */
+
   private boolean isImmune = false;
   private float immuneStartTime = 0.0;
   private float immuneDuration = 500;
@@ -20,11 +13,7 @@ class Player extends AbstractEntity {
   private int shieldKillStart = 0;
 
 
-  // GETTERS , SETTERS, and other public functions
-  public void setViewingDir(float x, float y){
-    look.x = x;
-    look.x = y;
-  }
+  // ##########################  GETTERS , SETTERS , Basic functions ########################## //
   
   public void startImmunity(){
     isImmune = true;
@@ -38,7 +27,7 @@ class Player extends AbstractEntity {
    return isImmune;
   }
   
-  // Functions for Upgrades
+  // ###### Functions for Upgrades ###### //
   public float modSpeed(){
     speed += 1;
     return speed;
@@ -75,7 +64,9 @@ class Player extends AbstractEntity {
     }
   }
   
-
+  
+  
+  // update logic
   public void update(){
     // ensures attack stops when supposed to 
     if (isAttacking && millis () - lastAttackTime > 100){
@@ -111,20 +102,9 @@ class Player extends AbstractEntity {
     loc.y = constrain(loc.y, ((img[0].getHeight() * 0.8) / 2), 3* 1080 - ((img[0].getHeight() * 0.8) / 2));
   }
   
+  // ##########################  Input Logic ########################## //
   
-  
-  public void mouseMoved(float camX, float camY){
-    //println("x : " +  mouseX + " y: "  + mouseY  + "loc.x: "  + loc.x + " loc.y: " + loc.y + mouseY + " camX : " + camX + " camY " + camY);
-    
-    PVector dir = new PVector(mouseX  - camX - loc.x, mouseY - camY - loc.y);
-    if (dir.mag() > 0){
-      dir.normalize();
-    }
-      
-    dir.mult(5000);
-    setViewingDir(dir.x, dir.y);
-  }
-  
+  // if mouse pressed and we're allowed to attack, attack
   public void mousePressed(){
     if (!isAttacking && canAttack()){
       println("player can attack");
@@ -135,58 +115,48 @@ class Player extends AbstractEntity {
     }
   }
   
-
-  
+  // if key pressed, set direction and currImg (which is the current animation to show) 
   public void keyPressed(char key){
-    print(key + " ");
     switch (key) {
      case 'w': 
        up = true;
        currImg = 0;
-       println("up");
        break;
      case 'a': 
        left = true;
        currImg = 3;
-       println("left");
        break;
      case 's': 
        down = true;
        currImg = 2;
-       println("down");
        break;
      case 'd': 
        right = true;
        currImg = 1;
-       println("right");
        break;
      default:
-       currImg = 8;
+       currImg = 8; // still 
      }
      
-     if (isAttacking){
+     if (isAttacking){ // if we are attacking, use the attack animation for the specified direction which was set during the switch
       currImg = (currImg % 4) + 4;
     }
   }
   
+  // if key released, set directional bool false
   public void keyReleased(char key){
-    print("r "+ key + " ");
     switch (key) {
       case 'w':
         up = false;
-        println("up");
         break;
       case 'a': 
        left = false;
-       println("left");
        break;
      case 's': 
        down = false;
-       println("down");
        break;
      case 'd': 
        right = false;
-       println("right");
        break;
      }  
      int prevImg = currImg;

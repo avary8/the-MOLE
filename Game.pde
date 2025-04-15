@@ -1,4 +1,6 @@
-class Game{// commented to skip intro animation for development purposes
+// Game class will handle menu screens, buttons, etc
+// once game is being played, the GamePlay class will handle that logic
+class Game{
   // Screen art to load
   private String[] names = { 
     "menu.png",
@@ -18,9 +20,7 @@ class Game{// commented to skip intro animation for development purposes
   private Button startButton, settingsButton, quitButton, escapeButton, yesButton, noButton, normalButton, hardButton, backMenuButton, resumeButton;
   private Slider musicVolSlider, effectsVolSlider;
   
-  private float musicVol = 100;
-  private float effectsVol = 100;
-  
+
   Game(){
     // load images for screens
     screens = new PImage[names.length];
@@ -28,11 +28,11 @@ class Game{// commented to skip intro animation for development purposes
       screens[i] = loadImage(names[i]);
     }
     
-    initButtons();
+    initButtons(); // at the bottom
     music.loop();
   }
   
-    
+  // display the correct image based on currScreen 
   public void display(){
     pushMatrix();
     imageMode(CORNER);
@@ -43,22 +43,16 @@ class Game{// commented to skip intro animation for development purposes
     }
 
     // draw the correct buttons / sliders needed for current screen
-    switch (currScreen){ //<>// //<>//
+    switch (currScreen){ //<>//
       case -1: // playing game
         switch(gamePlay.getGameStatus()){
           case -1: // playing the game
             gamePlay.updateDraw();
             break;
           case 0: // game LOST
-            music.stop();
-            music = mainMusic;
-            music.loop();
             currScreen = 5;
             break;
           case 1: // game WON
-            music.stop();
-            music = mainMusic;
-            music.loop();
             currScreen = 6;
             break;
         }
@@ -87,6 +81,7 @@ class Game{// commented to skip intro animation for development purposes
     popMatrix();
   }
   
+  // ##########################  GETTERS , SETTERS , Basic functions ########################## //
   
   public void setCurrScreen(int currScreen){
     this.currScreen = currScreen;
@@ -96,8 +91,7 @@ class Game{// commented to skip intro animation for development purposes
     return currScreen;
   }
   
-  
-  
+  // on startGame, we initialize a GamePlay instance which will handle game logic
   public void startGame(int difficulty){
     currScreen = -1;
     drawGamePlay(); // toggles off all buttons
@@ -105,11 +99,12 @@ class Game{// commented to skip intro animation for development purposes
     gamePlay.setEffectsVol(effectsVol);
   }
   
+  // ##########################  Input Logic ########################## //
   
   // what to do when ESC button (or key) is pressed. logic depends on what screen you are on
   public void handleESC(){
     switch (currScreen){
-      case -1: // playing the game , to in-game settings
+      case -1: // playing the game , go to in-game settings
         cp5.hide();
         upgradeCp5.hide();
         currScreen = 4;
@@ -156,8 +151,7 @@ class Game{// commented to skip intro animation for development purposes
   }
   
 
-  
-  
+
   // ########################## DRAW BUTTONS / SLIDERS FOR CURR SCREEN ########################## //
   
   private void drawMenu(){
@@ -184,6 +178,8 @@ class Game{// commented to skip intro animation for development purposes
     effectsVol = effectsVolSlider.getValue();
 
     music.amp(musicVol / 100.0); // adding 0.5 multiplier will decrease volume even more (as in 100% will be even lower)... i guess it stacks with orgin .amp adjustment since it's looping
+    mainMusic.amp(musicVol / 100.0);
+    bossMusic.amp(musicVol / 100.0);
   }
   
    private void drawQuitSettings(){
@@ -237,6 +233,8 @@ class Game{// commented to skip intro animation for development purposes
     effectsVol = effectsVolSlider.getValue();
     
     music.amp(musicVol / 100.0);
+    mainMusic.amp(musicVol / 100.0);
+    bossMusic.amp(musicVol / 100.0);
     gamePlay.setEffectsVol(effectsVol);
   }
   
@@ -324,15 +322,13 @@ class Game{// commented to skip intro animation for development purposes
      backMenuButton.hide();
      resumeButton.hide();
    }
-    
   }
   
-  
-  
+
   
   // ########################## INITIALIZE BUTTONS ########################## //
   
-  
+  // initialize the buttons, grouped by what screen they'll appear on
   private void initButtons(){
     int sliderHeight = 75;
     int sliderWidth = 600;
@@ -377,8 +373,7 @@ class Game{// commented to skip intro animation for development purposes
    
     // ----------------------- Settings ---------------------
     
-    
-    
+    // escape button is also used in difficulty screen
     escapeButton = cp5.addButton("escapeButton")
     .setLabel("")
     .setPosition(30, 17)
@@ -494,7 +489,8 @@ class Game{// commented to skip intro animation for development purposes
   }
   
   
-  // used for debugging
+  
+  // used for dev
   
   private void drawGrid(){
 

@@ -1,3 +1,5 @@
+// class to handle the Upgrade screen
+
 class UpgradeManager {
   // StringList so values can be removable
   StringList upgradeStrings = new StringList (new String[]{
@@ -6,9 +8,6 @@ class UpgradeManager {
     "increase attack range by 5%",
     "increase dmg by 10%",
     "gain 1 shield (life) after 100 kills (once)",
-    
-    //"every 5 kills, place tnt",
-    //"decrease all enemies speed by 10%"
   });
   
   Integer[] currSelection;
@@ -26,14 +25,9 @@ class UpgradeManager {
     this.player = player;
   }
   
-  // will need to PAUSE GamePlay and then display the UPGRADE SCREEN
-  
-  // will prob just print the text to screen to save time of making assets
-  
-  // array to pick random 3, and assign them to the PICK SCREEN 
-  
+  // display the upgrade screen
   public void display(){
-    if (randomize){
+    if (randomize){ // if we have not already, we must select 3 random upgrades from array to display to screen
       randomizeUpgradeSelection();
       setLabels();
     }
@@ -52,12 +46,10 @@ class UpgradeManager {
     line(150, 515, 1770, 515);
   
     line(150, 722.5, 1770, 722.5);
-     
     popMatrix();
-    
   }
   
-  
+  // ##########################  GETTERS , SETTERS , Basic functions ########################## //
   public void setSelected(int selected){
     this.selectedUpgrade = selected;
   }
@@ -66,18 +58,19 @@ class UpgradeManager {
     return selectedUpgrade;
   }
   
+  // draw the buttons to screen
   private void drawUpgrades(){
     upgradeCp5.show();
     toggleButtons(true);
   }
   
+  // hide buttons from screen
   public void hideUpgrades(){
     upgradeCp5.hide();
     toggleButtons(false);
-    
-    
+
     // revert button colors and curr selection
-    
+    // ^ once clicked, an upgrade box will highlight, so reset that
     selectedUpgrade = -1;
     randomize = true;
     
@@ -92,7 +85,9 @@ class UpgradeManager {
   
   }
   
- 
+  // upgrade logic switch
+  // once the player clicks an upgrade, the selectedUpgrade var is set, then once player clicks confirm, we use that variable to know which upgrade they want
+  // currSelection is the array of 3 upgrades that were randomly picked
   public void upgrade(){
     switch(currSelection[selectedUpgrade]){
       case 0: 
@@ -134,13 +129,14 @@ class UpgradeManager {
     randomize = false;
   }
   
+  // set the box labels to randomly picked upgrade descriptions
   private void setLabels(){
     box0.setLabel(upgradeStrings.get(currSelection[0]));
     box1.setLabel(upgradeStrings.get(currSelection[1]));
     box2.setLabel(upgradeStrings.get(currSelection[2]));
   }
   
-  
+  // show/hide cp5 buttons based on bool
   private void toggleButtons(boolean toggle){
     if (toggle){
       box0.show();
@@ -155,10 +151,7 @@ class UpgradeManager {
     }
   }
   
-  
-    // ########################## INITIALIZE BUTTONS ########################## //
-  
-  
+  // ########################## INITIALIZE BUTTONS ########################## //
   private void initButtons(){
 
     

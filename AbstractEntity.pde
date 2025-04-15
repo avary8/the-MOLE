@@ -1,9 +1,9 @@
+/* Abstract class for an Entity (Boss, Enemy, Player) since they share multiple variables and logic */
 abstract class AbstractEntity {
   protected Image[] img;
   protected int currImg;
-  protected PImage bullet;
+
   protected PVector loc = new PVector();
-  protected PVector look = new PVector();
   
   protected boolean isAttacking = false;
   protected boolean hasHit = false;
@@ -16,8 +16,8 @@ abstract class AbstractEntity {
   
   protected float health;
   
-  // Enemy constructor without Image[] 
-  // originally was init img array with enemy however, with many many enemies, it is a waste of memory. also i can't declare a static array so modified to just save the array in GamePlay class
+  // Enemy + Boss constructor without Image[] 
+  // originally was constructing img array with enemy however, with many many enemies, it is a waste of memory. also i can't declare a static array so modified to just save the array in GamePlay class
   AbstractEntity(float x, float y, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach, float imgWidth, float imgHeight){
     loc.x = x;
     loc.y = y;
@@ -31,7 +31,7 @@ abstract class AbstractEntity {
     hitBoxHeight = imgHeight * hitBoxAdj;
   }
   
-  
+  // Player constructor with Image[] (since only one player)
   AbstractEntity(Image[] img, float x, float y, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
     this.img = img;
     loc.x = x;
@@ -46,33 +46,18 @@ abstract class AbstractEntity {
     hitBoxHeight = img[0].getHeight() * hitBoxAdj;
   }
   
-  AbstractEntity(Image[] img, float x, float y,  String bulletFile, float speed, float health, float attackCooldown, float attackDamage, float hitBoxAdj, float attackReach){
-    this.img = img;
-    bullet = loadImage(bulletFile);
-    loc.x = x;
-    loc.y = y;
-    this.speed = speed;
-    this.health = health;
-    this.attackCooldown = attackCooldown;
-    this.attackDamage = attackDamage;
-    this.hitBoxAdj = hitBoxAdj;
-    this.attackReach = attackReach;
-    hitBoxWidth = img[0].getWidth() * hitBoxAdj;
-    hitBoxHeight = img[0].getHeight() * hitBoxAdj;
-  }
-  
-  
+  // display the current sequence of images -- see GamePlay loadEntityImages() for explanation of Image[]
   public void display(){
     pushMatrix();
     stroke(255, 255, 0);
     img[currImg].display(loc.x, loc.y);
     
-    
     popMatrix();
     
-    drawGuides();
+    drawGuides(); // used in development. nice guidelines to see boundaries
   }
   
+  // ##########################  GETTERS , SETTERS , Basic functions ########################## //
   
   public boolean getIsAttacking(){
     return isAttacking;
@@ -90,7 +75,6 @@ abstract class AbstractEntity {
     return loc.y;
   }
   
-  
   public Image[] getImg(){
     return img;
   }
@@ -99,6 +83,7 @@ abstract class AbstractEntity {
     return hitBoxWidth + (2 * attackReach);
   }
   
+  // entities have cooldowns, this checks if they are allowed to attack again
   protected boolean canAttack(){
     return millis() - lastAttackTime >= attackCooldown;
   }
@@ -108,12 +93,12 @@ abstract class AbstractEntity {
     health -= dmg;
   }
   
-  
+  // check if attack from <this> intersects with passed-in argument entity
   public boolean attackIntersects(AbstractEntity entity){
     float attackDirX = 0;
     float attackDirY = 0;
     
-    switch (currImg % 4){
+    switch (currImg % 4){ // images loaded in a specific way . mod 4 will give 0, 1, 2, 3 which will be a specific direction -- see GamePlay loadEntityImages() for explanation of Image[] 
       case 0: // Up
         attackDirY = -1; break; 
       case 1: // Right
@@ -129,7 +114,6 @@ abstract class AbstractEntity {
     
     float direction = (attackDirX * entityToX) + (attackDirY * entityToY);
 
-    
     return (direction > 0 && dist(loc.x, loc.y, entity.loc.x, entity.loc.y) < hitBoxWidth/2 + attackReach + entity.hitBoxWidth/2);
   }
   
@@ -142,7 +126,7 @@ abstract class AbstractEntity {
     
     pushMatrix();
     
-// RED
+// RED lines
     
     stroke(255, 0, 0);
 
@@ -154,7 +138,7 @@ abstract class AbstractEntity {
     //// just a guideline circle . pixel art is 64x64 exported to 500%
     //ellipse(loc.x, loc.y, img[0].getWidth(), img[0].getHeight());
 
-// GREEN 
+// GREEN lines
     stroke(0, 255, 0);
     fill(0, 0, 0, 0);
     
@@ -166,14 +150,14 @@ abstract class AbstractEntity {
     //line(loc.x - (hitBoxWidth/2)  - attackReach , loc.y - (hitBoxHeight/2) - attackReach, loc.x + (hitBoxWidth/2) + attackReach, loc.y + (hitBoxHeight/2) + attackReach);
     
     
-// BLUE
+// BLUE lines
     stroke(0, 0, 255);
     
     // melee reach -- when entity attacks "something", it the attack is inside the "something's" hitbox, "something" takes damage
     line(loc.x, loc.y - (hitBoxHeight/2) - attackReach, loc.x, loc.y + (hitBoxHeight/2) + attackReach);
     
   
-// YELLOW
+// YELLOW lines
     stroke(255, 255, 0);
     
     // circle of melee reach
