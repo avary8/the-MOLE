@@ -119,6 +119,7 @@ abstract class AbstractEntity {
   
   // used for debugging
   protected void drawGuides(){
+    /*
     
     // projectile viewing line (aka player to where the mouse is pointing)
     //PVector end = PVector.add(loc, look);
@@ -164,6 +165,8 @@ abstract class AbstractEntity {
     ellipse(loc.x, loc.y, hitBoxWidth + ( 2 * attackReach), hitBoxHeight + ( 2 * attackReach));
     
     popMatrix();
+    
+    */
   }
   
   
