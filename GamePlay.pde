@@ -9,7 +9,6 @@ class GamePlay {
   private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
   private Boss boss;
   private Image[] enemyImgs;
-  private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
   
   private int maxEnemyCount = 20;
   
